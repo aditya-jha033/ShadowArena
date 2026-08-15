@@ -1,0 +1,65 @@
+pragma language_version >= 0.22;
+
+import CompactStandardLibrary;
+
+export enum PoolState { OPEN, LOCKED, SETTLED }
+
+export ledger state: PoolState;
+export ledger matchId: Bytes<32>;
+export ledger playerCount: Uint<64>;
+export ledger maxPlayers: Uint<64>;
+export ledger potAmount: Uint<64>; // public aggregate pot
+export ledger payoutWinner: Maybe<Bytes<32>>;
+
+// Map player address to their stake commitment (hiding the exact amount)
+export ledger playerStakes: Map<Bytes<32>, Bytes<32>>;
+
+witness callerAddress(): Bytes<32>;
+witness matchIdWitness(): Bytes<32>;
+witness stakeAmount(): Uint<64>;
+witness stakeNonce(): Bytes<32>;
+
+constructor(max: Uint<64>) {
+  state = PoolState.OPEN;
+  matchId = disclose(matchIdWitness());
+  playerCount = 0;
+  maxPlayers = max;
+  potAmount = 0;
+  payoutWinner = none<Bytes<32>>();
+}
+
+pure circuit makeCommitment(amount: Uint<64>, nonce: Bytes<32>): Bytes<32> {
+  return persistentCommit<Uint<64>>(amount, nonce);
+}
+
+export circuit stakePrivate(amount: Uint<64>, nonce: Bytes<32>): [] {
+  assert(state == PoolState.OPEN, "Pool not open");
+  assert(playerCount < maxPlayers, "Table is full");
+  
+  const caller = disclose(callerAddress());
+  assert(!playerStakes.member(caller), "Player already staked");
+  
+  // The player commits to their stake amount
+  const commitment = makeCommitment(amount, nonce);
+  playerStakes.insert(caller, disclose(commitment));
+  
+  // Update public pot (Note: in a fully private pool, even potAmount might be hidden,
+  // but we keep it public for Phase 3 UI)
+  potAmount = potAmount + disclose(amount);
+  playerCount = playerCount + 1;
+}
+
+export circuit lockPool(): [] {
+  assert(state == PoolState.OPEN, "Pool not open");
+  assert(playerCount >= 2, "Need at least 2 players");
+  state = PoolState.LOCKED;
+}
+
+export circuit settleWinner(winner: Bytes<32>): [] {
+  assert(state == PoolState.LOCKED, "Pool not locked");
+  assert(playerStakes.member(winner), "Winner is not in the game");
+  
+  // Backend provides proof of win condition.
+  payoutWinner = disclose(some<Bytes<32>>(winner));
+  state = PoolState.SETTLED;
+}

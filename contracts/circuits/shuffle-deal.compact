@@ -1,0 +1,29 @@
+pragma language_version >= 0.22;
+
+import CompactStandardLibrary;
+
+// A simple circuit to verify a shuffle or random deal.
+// For the MVP, we just verify that a dealt card is between 1 and 10.
+
+export ledger lastDealtCard: Maybe<Bytes<32>>;
+
+witness callerAddress(): Bytes<32>;
+witness cardValue(): Uint<0..11>;
+witness cardNonce(): Bytes<32>;
+
+constructor() {
+  lastDealtCard = none<Bytes<32>>();
+}
+
+pure circuit makeCommitment(value: Uint<0..11>, nonce: Bytes<32>): Bytes<32> {
+  return persistentCommit<Uint<0..11>>(value, nonce);
+}
+
+export circuit dealCard(value: Uint<0..11>, nonce: Bytes<32>): [] {
+  // A simple circuit to verify that a dealt card is valid and commit to it.
+  assert(value > 0, "Card must be > 0");
+  assert(value <= 10, "Card must be <= 10");
+
+  const commitment = makeCommitment(value, nonce);
+  lastDealtCard = disclose(some<Bytes<32>>(commitment));
+}

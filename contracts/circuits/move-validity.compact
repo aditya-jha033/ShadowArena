@@ -1,0 +1,69 @@
+pragma language_version >= 0.22;
+
+import CompactStandardLibrary;
+
+export enum GameState { WAITING_P1, WAITING_P2, REVEAL, FINISHED }
+
+export ledger state: GameState;
+export ledger p1Address: Maybe<Bytes<32>>;
+export ledger p2Address: Maybe<Bytes<32>>;
+export ledger p1Commitment: Maybe<Bytes<32>>;
+export ledger p2Commitment: Maybe<Bytes<32>>;
+export ledger winnerAddress: Maybe<Bytes<32>>;
+export ledger isDraw: Boolean;
+
+witness callerAddress(): Bytes<32>;
+witness cardValue(): Uint<0..11>;
+witness cardNonce(): Bytes<32>;
+
+constructor() {
+  state = GameState.WAITING_P1;
+  p1Address = none<Bytes<32>>();
+  p2Address = none<Bytes<32>>();
+  p1Commitment = none<Bytes<32>>();
+  p2Commitment = none<Bytes<32>>();
+  winnerAddress = none<Bytes<32>>();
+  isDraw = false;
+}
+
+pure circuit makeCommitment(value: Uint<0..11>, nonce: Bytes<32>): Bytes<32> {
+  return persistentCommit<Uint<0..11>>(value, nonce);
+}
+
+export circuit joinPlayer1(commitment: Bytes<32>): [] {
+  assert(state == GameState.WAITING_P1, "Not waiting for P1");
+  p1Address = disclose(some<Bytes<32>>(callerAddress()));
+  p1Commitment = disclose(some<Bytes<32>>(commitment));
+  state = GameState.WAITING_P2;
+}
+
+export circuit joinPlayer2(commitment: Bytes<32>): [] {
+  assert(state == GameState.WAITING_P2, "Not waiting for P2");
+  p2Address = disclose(some<Bytes<32>>(callerAddress()));
+  p2Commitment = disclose(some<Bytes<32>>(commitment));
+  state = GameState.REVEAL;
+}
+
+export circuit reveal(p1Value: Uint<0..11>, p1Nonce: Bytes<32>, p2Value: Uint<0..11>, p2Nonce: Bytes<32>): [] {
+  assert(state == GameState.REVEAL, "Not in reveal state");
+  
+  // In a real ZK game, they would reveal one by one, 
+  // but for a simple MVP, we just prove the values match the commitments.
+  const p1Expected = makeCommitment(p1Value, p1Nonce);
+  const p2Expected = makeCommitment(p2Value, p2Nonce);
+  
+  assert(p1Commitment.value == p1Expected, "P1 commitment mismatch");
+  assert(p2Commitment.value == p2Expected, "P2 commitment mismatch");
+
+  if (p1Value > p2Value) {
+    winnerAddress = p1Address;
+    isDraw = false;
+  } else if (p2Value > p1Value) {
+    winnerAddress = p2Address;
+    isDraw = false;
+  } else {
+    isDraw = true;
+  }
+
+  state = GameState.FINISHED;
+}

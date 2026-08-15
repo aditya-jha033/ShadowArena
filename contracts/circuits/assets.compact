@@ -1,0 +1,35 @@
+pragma language_version >= 0.22;
+
+import CompactStandardLibrary;
+
+export ledger nextAssetId: Uint<64>;
+// Map asset ID to Owner Address
+export ledger assetOwners: Map<Uint<64>, Bytes<32>>;
+// Map asset ID to Metadata Hash (e.g. skin URI)
+export ledger assetMetadata: Map<Uint<64>, Bytes<32>>;
+
+witness callerAddress(): Bytes<32>;
+witness minterAddress(): Bytes<32>;
+
+constructor() {
+  nextAssetId = 1;
+}
+
+export circuit mintAsset(owner: Bytes<32>, metaHash: Bytes<32>): [] {
+  // In a real application, only authorized accounts should mint.
+  // For MVP, we allow anyone to mint test assets.
+  const assetId = nextAssetId;
+  assetOwners.insert(assetId, disclose(owner));
+  assetMetadata.insert(assetId, disclose(metaHash));
+  
+  nextAssetId = disclose((assetId + 1) as Uint<64>);
+}
+
+export circuit transferAsset(assetId: Uint<64>, newOwner: Bytes<32>): [] {
+  assert(assetOwners.member(assetId), "Asset does not exist");
+  
+  const caller = disclose(callerAddress());
+  assert(assetOwners.lookup(assetId) == caller, "Not the owner");
+  
+  assetOwners.insert(assetId, disclose(newOwner));
+}
