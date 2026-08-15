@@ -1,0 +1,133 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id            String   @id @default(cuid())
+  walletAddress String   @unique
+  createdAt     DateTime @default(now())
+  matches       MatchPlayer[]
+  assets        AssetOwnership[]
+  listings      MarketplaceListing[]
+  tournaments   TournamentEntry[]
+}
+
+model Match {
+  id          String        @id @default(cuid())
+  gameType    String        // "card_duel" | "dice_duel" | ...
+  status      String        // "pending" | "active" | "settled"
+  createdAt   DateTime      @default(now())
+  settledAt   DateTime?
+  players     MatchPlayer[]
+  seats       TableSeat[]
+  moves       MatchMove[]
+  stakes      Stake[]
+  payouts     Payout[]
+}
+
+model MatchPlayer {
+  id       String  @id @default(cuid())
+  match    Match   @relation(fields: [matchId], references: [id])
+  matchId  String
+  user     User    @relation(fields: [userId], references: [id])
+  userId   String
+  seat     Int
+  result   String? // "win" | "loss" | "draw"
+}
+
+model MatchMove {
+  id        String   @id @default(cuid())
+  match     Match    @relation(fields: [matchId], references: [id])
+  matchId   String
+  seat      Int
+  moveIndex Int
+  proofTx   String   // on-chain proof/tx reference
+  createdAt DateTime @default(now())
+}
+
+model Stake {
+  id         String   @id @default(cuid())
+  match      Match    @relation(fields: [matchId], references: [id])
+  matchId    String
+  userId     String
+  amount     Decimal? // null/hidden when private-stake mode (Phase 3)
+  isPrivate  Boolean  @default(false)
+  txRef      String
+}
+
+model AssetOwnership {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  asset     Asset    @relation(fields: [assetId], references: [id])
+  assetId   String
+  isEquipped Boolean @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Asset {
+  id          String   @id // matches on-chain ID
+  name        String
+  description String
+  type        String   // "card_back" | "table_skin" | "entry_pass"
+  imageUrl    String
+  owners      AssetOwnership[]
+  listings    MarketplaceListing[]
+}
+
+model MarketplaceListing {
+  id        String   @id @default(cuid())
+  asset     Asset    @relation(fields: [assetId], references: [id])
+  assetId   String
+  seller    User     @relation(fields: [sellerId], references: [id])
+  sellerId  String
+  price     Decimal
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+model Tournament {
+  id          String   @id @default(cuid())
+  name        String
+  entryFee    Decimal
+  prizePool   Decimal
+  status      String   // "upcoming" | "active" | "completed"
+  startsAt    DateTime
+  entries     TournamentEntry[]
+  createdAt   DateTime @default(now())
+}
+
+model TournamentEntry {
+  id           String     @id @default(cuid())
+  tournament   Tournament @relation(fields: [tournamentId], references: [id])
+  tournamentId String
+  user         User       @relation(fields: [userId], references: [id])
+  userId       String
+  position     Int?       // Final leaderboard placement
+  createdAt    DateTime   @default(now())
+}
+
+model Payout {
+  id         String   @id @default(cuid())
+  match      Match    @relation(fields: [matchId], references: [id])
+  matchId    String
+  userId     String
+  amount     Decimal
+  txRef      String
+  createdAt  DateTime @default(now())
+}
+
+model TableSeat {
+  id        String   @id @default(cuid())
+  match     Match    @relation(fields: [matchId], references: [id])
+  matchId   String
+  seatIndex Int
+  userId    String?  // null if empty
+  isReady   Boolean  @default(false)
+}
