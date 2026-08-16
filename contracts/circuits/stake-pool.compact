@@ -29,32 +29,33 @@ constructor() {
 
 export circuit stakePlayer1(amount: Uint<64>): [] {
   assert(state == PoolState.OPEN, "Pool not open");
-  assert(p1Address.is_none(), "Player 1 already staked");
+  assert(!p1Address.is_some, "Player 1 already staked");
   // In a full implementation, Zswap or token transfers would happen here.
   // For MVP, we record the stake amount.
   p1Address = disclose(some<Bytes<32>>(callerAddress()));
-  p1Stake = amount;
+  p1Stake = disclose(amount);
 }
 
 export circuit stakePlayer2(amount: Uint<64>): [] {
   assert(state == PoolState.OPEN, "Pool not open");
-  assert(p2Address.is_none(), "Player 2 already staked");
+  assert(!p2Address.is_some, "Player 2 already staked");
   assert(amount == p1Stake, "Must match Player 1 stake");
   
   p2Address = disclose(some<Bytes<32>>(callerAddress()));
-  p2Stake = amount;
+  p2Stake = disclose(amount);
   state = PoolState.LOCKED;
 }
 
 export circuit settleWinner(winner: Bytes<32>): [] {
   assert(state == PoolState.LOCKED, "Pool not locked");
-  assert(winner == p1Address.value || winner == p2Address.value, "Invalid winner");
+  const pubWinner = disclose(winner);
+  assert(pubWinner == p1Address.value || pubWinner == p2Address.value, "Invalid winner");
   // The backend would verify the win condition proof and settle the pool.
   
   // Calculate Rake Fee (e.g. 5% to treasury)
   // In a full implementation, token transfers would distribute:
   // (TotalPot * 0.95) to winner, (TotalPot * 0.05) to treasuryAddress.
   
-  payoutWinner = disclose(some<Bytes<32>>(winner));
+  payoutWinner = disclose(some<Bytes<32>>(pubWinner));
   state = PoolState.SETTLED;
 }

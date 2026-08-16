@@ -47,18 +47,21 @@ export circuit joinPlayer2(commitment: Bytes<32>): [] {
 export circuit reveal(p1Value: Uint<0..11>, p1Nonce: Bytes<32>, p2Value: Uint<0..11>, p2Nonce: Bytes<32>): [] {
   assert(state == GameState.REVEAL, "Not in reveal state");
   
-  // In a real ZK game, they would reveal one by one, 
-  // but for a simple MVP, we just prove the values match the commitments.
+  // Verify both players' revealed values match their on-chain commitments.
   const p1Expected = makeCommitment(p1Value, p1Nonce);
   const p2Expected = makeCommitment(p2Value, p2Nonce);
   
   assert(p1Commitment.value == p1Expected, "P1 commitment mismatch");
   assert(p2Commitment.value == p2Expected, "P2 commitment mismatch");
 
-  if (p1Value > p2Value) {
+  // Disclose the values so comparisons don't leak private state into ledger ops.
+  const pub1 = disclose(p1Value) as Uint<64>;
+  const pub2 = disclose(p2Value) as Uint<64>;
+
+  if (pub1 > pub2) {
     winnerAddress = p1Address;
     isDraw = false;
-  } else if (p2Value > p1Value) {
+  } else if (pub2 > pub1) {
     winnerAddress = p2Address;
     isDraw = false;
   } else {

@@ -26,10 +26,11 @@ export circuit mintAsset(owner: Bytes<32>, metaHash: Bytes<32>): [] {
 }
 
 export circuit transferAsset(assetId: Uint<64>, newOwner: Bytes<32>): [] {
-  assert(assetOwners.member(assetId), "Asset does not exist");
+  const pubAssetId = disclose(assetId);
+  assert(assetOwners.member(pubAssetId), "Asset does not exist");
   
   const caller = disclose(callerAddress());
-  assert(assetOwners.lookup(assetId) == caller, "Not the owner");
+  assert(assetOwners.lookup(pubAssetId) == caller, "Not the owner");
   
-  assetOwners.insert(assetId, disclose(newOwner));
+  assetOwners.insert(pubAssetId, disclose(newOwner));
 }

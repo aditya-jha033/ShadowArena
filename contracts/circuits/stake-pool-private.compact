@@ -23,7 +23,7 @@ constructor(max: Uint<64>) {
   state = PoolState.OPEN;
   matchId = disclose(matchIdWitness());
   playerCount = 0;
-  maxPlayers = max;
+  maxPlayers = disclose(max);
   potAmount = 0;
   payoutWinner = none<Bytes<32>>();
 }
@@ -45,8 +45,8 @@ export circuit stakePrivate(amount: Uint<64>, nonce: Bytes<32>): [] {
   
   // Update public pot (Note: in a fully private pool, even potAmount might be hidden,
   // but we keep it public for Phase 3 UI)
-  potAmount = potAmount + disclose(amount);
-  playerCount = playerCount + 1;
+  potAmount = (potAmount + disclose(amount)) as Uint<64>;
+  playerCount = (playerCount + 1) as Uint<64>;
 }
 
 export circuit lockPool(): [] {
@@ -57,9 +57,10 @@ export circuit lockPool(): [] {
 
 export circuit settleWinner(winner: Bytes<32>): [] {
   assert(state == PoolState.LOCKED, "Pool not locked");
-  assert(playerStakes.member(winner), "Winner is not in the game");
+  const pubWinner = disclose(winner);
+  assert(playerStakes.member(pubWinner), "Winner is not in the game");
   
   // Backend provides proof of win condition.
-  payoutWinner = disclose(some<Bytes<32>>(winner));
+  payoutWinner = disclose(some<Bytes<32>>(pubWinner));
   state = PoolState.SETTLED;
 }
