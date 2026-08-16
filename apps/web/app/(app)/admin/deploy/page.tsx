@@ -5,7 +5,7 @@ import { useWalletStore } from "@/lib/midnight/wallet";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { ShieldAlert, Server, CheckCircle2, Loader2, Trash2 } from "lucide-react";
+import { ShieldAlert, Server, CheckCircle2, Loader2, Trash2, Lock } from "lucide-react";
 
 const CONTRACTS = [
   { 
@@ -45,6 +45,98 @@ const CONTRACTS = [
     required: false,
   },
 ];
+
+// Admin PIN gate component
+function AdminPinGate({ children }: { children: React.ReactNode }) {
+  const [unlocked, setUnlocked] = useState(false);
+  const [pin, setPin] = useState("");
+  const [error, setError] = useState("");
+  const [checking, setChecking] = useState(true);
+
+  useEffect(() => {
+    // Always allow on localhost in dev
+    const isLocalhost =
+      window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1";
+
+    // If no admin PIN is configured, only allow localhost
+    const adminPin = process.env.NEXT_PUBLIC_ADMIN_PIN;
+    if (!adminPin) {
+      if (isLocalhost) {
+        setUnlocked(true);
+      }
+      setChecking(false);
+      return;
+    }
+
+    // Check session storage for existing auth
+    const session = sessionStorage.getItem("shadowarena:admin_auth");
+    if (session === adminPin) {
+      setUnlocked(true);
+    }
+    setChecking(false);
+  }, []);
+
+  const handleUnlock = () => {
+    const adminPin = process.env.NEXT_PUBLIC_ADMIN_PIN;
+    if (!adminPin) {
+      setError("Admin access is not configured. Contact the developer.");
+      return;
+    }
+    if (pin === adminPin) {
+      sessionStorage.setItem("shadowarena:admin_auth", adminPin);
+      setUnlocked(true);
+      setError("");
+    } else {
+      setError("Incorrect PIN. Access denied.");
+      setPin("");
+    }
+  };
+
+  if (checking) return null;
+
+  if (!unlocked) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background px-4">
+        <div className="w-full max-w-sm">
+          <div className="flex flex-col items-center gap-6 p-8 rounded-2xl border border-border/40 bg-card shadow-2xl">
+            <div className="flex items-center justify-center w-14 h-14 rounded-full bg-primary/10 border border-primary/20">
+              <Lock className="w-6 h-6 text-primary" />
+            </div>
+            <div className="text-center space-y-1">
+              <h1 className="text-xl font-bold text-foreground">Admin Access Required</h1>
+              <p className="text-sm text-muted-foreground">
+                Enter your admin PIN to access the deployment panel.
+              </p>
+            </div>
+            <div className="w-full space-y-3">
+              <input
+                type="password"
+                placeholder="Enter admin PIN"
+                value={pin}
+                onChange={(e) => setPin(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleUnlock()}
+                className="w-full px-4 py-2.5 rounded-lg border border-border bg-background text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/60 transition"
+                autoFocus
+              />
+              {error && (
+                <p className="text-xs text-destructive font-medium">{error}</p>
+              )}
+              <Button onClick={handleUnlock} className="w-full">
+                Unlock Admin Panel
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground text-center">
+              This area is restricted to authorized operators only.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return <>{children}</>;
+}
 
 export default function DeployPage() {
   const { isConnected, walletAddress } = useWalletStore();
@@ -106,6 +198,7 @@ export default function DeployPage() {
   };
 
   return (
+    <AdminPinGate>
     <div className="container mx-auto max-w-4xl py-12 px-6">
       <div className="flex flex-col md:flex-row items-center justify-between mb-8 gap-4">
         <div>
@@ -213,5 +306,6 @@ export default function DeployPage() {
         })}
       </div>
     </div>
+    </AdminPinGate>
   );
 }
