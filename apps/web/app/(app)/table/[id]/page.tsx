@@ -1,6 +1,7 @@
 import { TableFelt } from "@/components/game/TableFelt";
 
-export default function TablePage({ params }: { params: { id: string } }) {
+export default async function TablePage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   return (
     <div className="flex flex-col min-h-screen">
       <header className="px-6 h-14 flex items-center border-b border-border/40 bg-card">

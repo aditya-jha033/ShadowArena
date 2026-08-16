@@ -15,6 +15,7 @@ export function TableFelt({
 }) {
   const [hasCommitted, setHasCommitted] = useState(false);
   const [gameState, setGameState] = useState<"WAITING" | "REVEAL">("WAITING");
+  const [selectedCard, setSelectedCard] = useState<number | null>(null);
 
   const myHand = [2, 5, 8, 10]; // Example hand for MVP
   const opponentsCount = players - 1;
