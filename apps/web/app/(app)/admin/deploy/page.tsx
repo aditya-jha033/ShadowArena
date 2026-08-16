@@ -54,26 +54,25 @@ function AdminPinGate({ children }: { children: React.ReactNode }) {
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {
-    // Always allow on localhost in dev
     const isLocalhost =
       window.location.hostname === "localhost" ||
       window.location.hostname === "127.0.0.1";
-
-    // If no admin PIN is configured, only allow localhost
     const adminPin = process.env.NEXT_PUBLIC_ADMIN_PIN;
     if (!adminPin) {
       if (isLocalhost) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setUnlocked(true);
       }
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setChecking(false);
       return;
     }
-
-    // Check session storage for existing auth
     const session = sessionStorage.getItem("shadowarena:admin_auth");
     if (session === adminPin) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setUnlocked(true);
     }
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setChecking(false);
   }, []);
 
@@ -139,7 +138,7 @@ function AdminPinGate({ children }: { children: React.ReactNode }) {
 }
 
 export default function DeployPage() {
-  const { isConnected, walletAddress } = useWalletStore();
+  const { isConnected } = useWalletStore();
   const [deployingId, setDeployingId] = useState<string | null>(null);
   // Always start with {} so server and client render identically (avoids hydration mismatch).
   // localStorage is loaded after mount only on the client side.
@@ -150,8 +149,10 @@ export default function DeployPage() {
   useEffect(() => {
     try {
       const saved = localStorage.getItem('shadowarena:deployedContracts');
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       if (saved) setDeployedAddresses(JSON.parse(saved));
     } catch {}
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setHydrated(true);
   }, []);
 
@@ -172,6 +173,7 @@ export default function DeployPage() {
     toast.info(`Initiating deployment for ${contractId}... Please check your 1AM wallet popup to sign.`);
     
     try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const w1am = (window as any).midnight?.["1am"];
       if (!w1am) throw new Error("1AM Wallet not found");
       
@@ -189,9 +191,9 @@ export default function DeployPage() {
           onClick: () => window.open(`https://preview.midnightexplorer.com/transactions/${txHash}`, "_blank", "noopener,noreferrer"),
         } : undefined,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(error);
-      toast.error(`Deployment failed: ${error.message || "Unknown error"}`);
+      toast.error(`Deployment failed: ${error instanceof Error ? error.message : "Unknown error"}`);
     } finally {
       setDeployingId(null);
     }

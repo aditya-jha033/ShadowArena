@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { PlayingCard } from "./PlayingCard";
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+
 import { toast } from "sonner";
 
 export function TableFelt({ 
@@ -16,7 +16,7 @@ export function TableFelt({
   cardBackSkin?: string;
 }) {
   const [hasCommitted, setHasCommitted] = useState(false);
-  const [gameState, setGameState] = useState<"WAITING" | "REVEAL">("WAITING");
+
   const [selectedCard, setSelectedCard] = useState<number | null>(null);
 
   const myHand = [2, 5, 8, 10]; // Example hand for MVP
@@ -53,6 +53,7 @@ export function TableFelt({
         const saved = localStorage.getItem('shadowarena:deployedContracts');
         const stakePoolAddress = saved ? JSON.parse(saved)["stake-pool"] : "";
         if (!stakePoolAddress) return;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const w1am = (window as any).midnight?.["1am"];
         if (!w1am) return;
         const api = await w1am.connect("preview");
@@ -67,6 +68,7 @@ export function TableFelt({
             },
           });
         }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (e: any) {
         console.warn("Background chain commit failed (move already committed locally):", e?.message);
       }

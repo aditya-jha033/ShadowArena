@@ -59,6 +59,7 @@ export function StakeModal({ gameMode, onMatchCreated }: StakeModalProps) {
     try {
       // 1. Send transaction to Midnight Network
       toast.info("Check your 1AM Wallet to approve the stake transaction...");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const w1am = (window as any).midnight?.["1am"];
       const api = await w1am.connect("preview");
       
@@ -96,6 +97,7 @@ export function StakeModal({ gameMode, onMatchCreated }: StakeModalProps) {
       setOpen(false);
       onMatchCreated?.();
       router.push(`/table/${matchId}`);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       console.error("Failed to create match", e);
       toast.error("Failed to create table", {

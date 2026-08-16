@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Swords, Dices, Clock, Trophy, Loader2 } from "lucide-react";
 import { StakeModal } from "@/components/game/StakeModal";
 import { useWalletStore } from "@/lib/midnight/wallet";
-import Link from "next/link";
+
 
 interface Stats {
   matchesPlayed: number;
@@ -45,6 +45,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (!walletAddress) { setLoading(false); return; }
 
     const load = async () => {

@@ -73,7 +73,7 @@ jobs:
 
       - name: Run ESLint
         working-directory: apps/web
-        run: npm run lint -- --format=github
+        run: npm run lint
         env:
           SKIP_ENV_VALIDATION: true
 
