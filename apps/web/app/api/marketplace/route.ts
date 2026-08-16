@@ -13,7 +13,7 @@ export async function GET() {
       orderBy: { createdAt: "desc" },
     });
 
-    const data = dbListings.map((l: any) => {
+    const data = listings.map((l) => {
       const addr = l.seller.walletAddress;
       const shortAddr =
         addr.length > 12
