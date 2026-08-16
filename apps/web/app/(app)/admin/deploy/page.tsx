@@ -8,11 +8,42 @@ import { toast } from "sonner";
 import { ShieldAlert, Server, CheckCircle2, Loader2, Trash2 } from "lucide-react";
 
 const CONTRACTS = [
-  { id: "stake-pool", name: "Stake Pool", desc: "Public MVP Stake Pool" },
-  { id: "stake-pool-private", name: "Private Stake Pool", desc: "ZSwap / Hidden Commitment Pool" },
-  { id: "assets", name: "Asset Manager", desc: "Skins & Emotes NFT Contract" },
-  { id: "shuffle-deal", name: "Card Shuffler", desc: "Mental Poker / ZK Shuffle Contract" },
-  { id: "move-validity", name: "Move Validator", desc: "ZK Move & Win Condition Contract" }
+  { 
+    id: "stake-pool", 
+    name: "Stake Pool", 
+    desc: "Public MVP Stake Pool",
+    constructorArgs: [],
+    required: true,
+  },
+  { 
+    id: "stake-pool-private", 
+    name: "Private Stake Pool", 
+    desc: "ZSwap / Hidden Commitment Pool",
+    // max: Uint<64> — max number of players (2 for a 1v1 arena game)
+    constructorArgs: [2n],
+    required: false,
+  },
+  { 
+    id: "assets", 
+    name: "Asset Manager", 
+    desc: "Skins & Emotes NFT Contract",
+    constructorArgs: [],
+    required: false,
+  },
+  { 
+    id: "shuffle-deal", 
+    name: "Card Shuffler", 
+    desc: "Mental Poker / ZK Shuffle Contract",
+    constructorArgs: [],
+    required: false,
+  },
+  { 
+    id: "move-validity", 
+    name: "Move Validator", 
+    desc: "ZK Move & Win Condition Contract",
+    constructorArgs: [],
+    required: false,
+  },
 ];
 
 export default function DeployPage() {
@@ -44,6 +75,7 @@ export default function DeployPage() {
       return;
     }
 
+    const contract = CONTRACTS.find(c => c.id === contractId);
     setDeployingId(contractId);
     toast.info(`Initiating deployment for ${contractId}... Please check your 1AM wallet popup to sign.`);
     
@@ -53,9 +85,8 @@ export default function DeployPage() {
       
       const api = await w1am.connect("preview");
       
-      // Use our new dynamic adapter
       const { deployMidnightContract } = await import("@/lib/midnight/deploy");
-      const realAddress = await deployMidnightContract(api, contractId);
+      const realAddress = await deployMidnightContract(api, contractId, contract?.constructorArgs ?? []);
       
       setDeployedAddresses(prev => ({ ...prev, [contractId]: realAddress }));
       toast.success(`${contractId} deployed successfully!`);
@@ -112,7 +143,14 @@ export default function DeployPage() {
             <Card key={contract.id} className="bg-zinc-900/50 border-zinc-800">
               <CardHeader className="pb-3 flex flex-row items-start justify-between">
                 <div>
-                  <CardTitle className="text-lg text-zinc-100">{contract.name}</CardTitle>
+                  <div className="flex items-center gap-2">
+                    <CardTitle className="text-lg text-zinc-100">{contract.name}</CardTitle>
+                    {contract.required ? (
+                      <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/25">Required</span>
+                    ) : (
+                      <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-zinc-700/50 text-zinc-500 border border-zinc-700">Optional</span>
+                    )}
+                  </div>
                   <CardDescription className="text-zinc-400">{contract.desc}</CardDescription>
                 </div>
                 {isDeployed && (

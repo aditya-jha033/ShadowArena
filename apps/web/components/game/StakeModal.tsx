@@ -41,8 +41,32 @@ export function StakeModal({ gameMode, onMatchCreated }: StakeModalProps) {
       return;
     }
 
+    // Read the deployed contract address from localStorage
+    let stakePoolAddress = "";
+    try {
+      const saved = localStorage.getItem('shadowarena:deployedContracts');
+      if (saved) stakePoolAddress = JSON.parse(saved)["stake-pool"];
+    } catch {}
+
+    if (!stakePoolAddress) {
+      toast.error("Contract not deployed", {
+        description: "Please ask the admin to deploy the Stake Pool contract first.",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     try {
+      // 1. Send transaction to Midnight Network
+      toast.info("Check your 1AM Wallet to approve the stake transaction...");
+      const w1am = (window as any).midnight?.["1am"];
+      const api = await w1am.connect("preview");
+      
+      const { callMidnightCircuit } = await import("@/lib/midnight/deploy");
+      // stakePlayer1 requires a BigInt amount
+      await callMidnightCircuit(api, "stake-pool", stakePoolAddress, "stakePlayer1", [BigInt(amount)]);
+
+      // 2. If successful, record the match in the database
       const res = await fetch("/api/matches", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -56,7 +80,7 @@ export function StakeModal({ gameMode, onMatchCreated }: StakeModalProps) {
 
       if (!res.ok) {
         const text = await res.text();
-        throw new Error(text || "Failed to create match");
+        throw new Error(text || "Failed to create match in database");
       }
 
       const { matchId } = await res.json();

@@ -28,7 +28,7 @@ class FetchZkConfigProvider {
   }
 }
 
-export async function deployMidnightContract(api: any, contractName: string): Promise<string> {
+export async function deployMidnightContract(api: any, contractName: string, constructorArgs: any[] = []): Promise<string> {
   // Set the global network ID for Midnight-JS
   setNetworkId('preview');
 
@@ -82,6 +82,8 @@ export async function deployMidnightContract(api: any, contractName: string): Pr
       compiledContract: compiledContract as any,
       signingKey: sampleSigningKey(),
       initialPrivateState: {},
+      // Pass constructor args — e.g. stake-pool-private needs max: bigint
+      ...(constructorArgs.length > 0 ? { args: constructorArgs } : {}),
     } as any
   );
 
@@ -100,4 +102,77 @@ export async function deployMidnightContract(api: any, contractName: string): Pr
   // Return the address immediately — we don't wait for on-chain confirmation
   // The transaction is already broadcast and will confirm in ~10-20 seconds
   return contractAddress as string;
+}
+
+import { createUnprovenCallTx } from '@midnight-ntwrk/midnight-js-contracts';
+
+export async function callMidnightCircuit(
+  api: any, 
+  contractName: string, 
+  contractAddress: string, 
+  circuitName: string, 
+  args: any[]
+): Promise<string> {
+  setNetworkId('preview');
+  
+  const config = await api.getConfiguration();
+  const zkConfigProvider = new FetchZkConfigProvider(contractName);
+  const provingProvider = await api.getProvingProvider(zkConfigProvider);
+  const proofProvider = createProofProvider(provingProvider);
+  const addresses = await api.getShieldedAddresses();
+
+  const walletProvider = {
+    getCoinPublicKey: () => addresses.shieldedCoinPublicKey,
+    getEncryptionPublicKey: () => addresses.shieldedEncryptionPublicKey,
+    balanceTx: async (tx: any) => {
+      const hexTx = Buffer.from(tx.serialize()).toString('hex');
+      const balanced = await api.balanceUnsealedTransaction(hexTx);
+      return { serializedHex: balanced.tx } as any;
+    }
+  };
+
+  const publicDataProvider = indexerPublicDataProvider(config.indexer, config.indexerWS);
+
+  let contractModule: any;
+  try {
+    contractModule = await import(`../../../../contracts/dist/${contractName}/contract/index.js`);
+  } catch (e) {
+    throw new Error(`Failed to load compiled contract for ${contractName}: ${e}`);
+  }
+
+  // Build dummy witnesses to satisfy the contract's witness requirements
+  // For MVP, callerAddress is just 32 empty bytes. A real app would provide the user's actual 1AM public key.
+  const dummyMatchId = new Uint8Array(32);
+  const witnesses = {
+    callerAddress: (context: any) => [context.privateState, new Uint8Array(32)],
+    matchIdWitness: (context: any) => [context.privateState, dummyMatchId],
+  };
+  
+  let compiledContract = CompiledContract.make(contractName, contractModule.Contract);
+  compiledContract = CompiledContract.withWitnesses(compiledContract, witnesses);
+
+  // We need to fetch the existing state
+  const stateData = await publicDataProvider.queryZSwapAndContractState(contractAddress);
+  if (!stateData) {
+    throw new Error("Contract state not found on the network. Is the contract address correct and deployed?");
+  }
+  const contractState = stateData[1];
+
+  const unprovenCallTx = await createUnprovenCallTx(
+    { zkConfigProvider: zkConfigProvider as any, walletProvider: walletProvider as any },
+    {
+      compiledContract: compiledContract as any,
+      contractAddress,
+      circuitName,
+      args,
+      previousPrivateState: {},
+      contractState
+    } as any
+  );
+
+  const provenTx = await proofProvider.proveTx(unprovenCallTx.private.unprovenTx as any);
+  const balancedTx = await walletProvider.balanceTx(provenTx);
+  await api.submitTransaction(balancedTx.serializedHex);
+
+  return balancedTx.serializedHex;
 }

@@ -20,10 +20,41 @@ export function TableFelt({
   const myHand = [2, 5, 8, 10]; // Example hand for MVP
   const opponentsCount = players - 1;
 
-  const handleCommit = () => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleCommit = async () => {
     if (selectedCard !== null) {
-      setHasCommitted(true);
-      // Here we would wire up Midnight.js to submit the ZK proof of the commitment
+      setIsSubmitting(true);
+      try {
+        // Read the deployed contract address
+        let stakePoolAddress = "";
+        try {
+          const saved = localStorage.getItem('shadowarena:deployedContracts');
+          if (saved) stakePoolAddress = JSON.parse(saved)["stake-pool"];
+        } catch {}
+
+        if (!stakePoolAddress) {
+          alert("Contract not deployed. Ask admin to deploy Stake Pool.");
+          return;
+        }
+
+        const w1am = (window as any).midnight?.["1am"];
+        if (!w1am) throw new Error("1AM Wallet not found");
+        
+        const api = await w1am.connect("preview");
+        const { callMidnightCircuit } = await import("@/lib/midnight/deploy");
+        
+        // For MVP, we assume Player 2 matches Player 1's 100 tDUST stake
+        // In a full implementation, this amount would be fetched from the DB Match object
+        await callMidnightCircuit(api, "stake-pool", stakePoolAddress, "stakePlayer2", [100n]);
+
+        setHasCommitted(true);
+      } catch (e: any) {
+        console.error("Failed to commit move:", e);
+        alert(`Failed to commit move: ${e.message}`);
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -65,10 +96,10 @@ export function TableFelt({
               <div className="text-lg font-medium text-muted-foreground">Select a card to play</div>
               <Button 
                 onClick={handleCommit} 
-                disabled={selectedCard === null}
-                className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                disabled={selectedCard === null || isSubmitting}
+                className="bg-primary hover:bg-primary/90 text-primary-foreground min-w-[140px]"
               >
-                Commit Move
+                {isSubmitting ? "Proving..." : "Commit Move"}
               </Button>
             </div>
           )}
