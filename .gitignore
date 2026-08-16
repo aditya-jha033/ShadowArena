@@ -36,3 +36,4 @@ yarn-error.log*
 # prisma
 *.db
 *.db-journal
+IMPLEMENTATION_PLAN.md
