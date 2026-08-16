@@ -1,8 +1,10 @@
 import type { NextConfig } from "next";
 
+import path from 'path';
+
 const nextConfig: NextConfig = {
   webpack(config) {
-    config.resolve.alias['isomorphic-ws'] = new URL('./lib/isomorphic-ws-fix.mjs', import.meta.url).pathname;
+    config.resolve.alias['isomorphic-ws'] = path.join(process.cwd(), 'lib', 'isomorphic-ws-fix.mjs');
     config.resolve.fallback = { fs: false, net: false, tls: false, child_process: false };
     config.experiments = { 
       ...config.experiments, 
