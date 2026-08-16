@@ -1,6 +1,6 @@
 "use client";
 
-import { Component, ErrorInfo, ReactNode } from "react";
+import React, { Component, ErrorInfo, ReactNode } from "react";
 import { AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -37,8 +37,8 @@ export class ErrorBoundary extends Component<Props, State> {
           <p className="text-muted-foreground mb-6 max-w-md">
             The game engine encountered an unexpected error. This has been logged for our team.
           </p>
-          <Button onClick={() => window.location.reload()}>
-            Reload Application
+          <Button onClick={() => this.setState({ hasError: false })}>
+            Try Again
           </Button>
         </div>
       );
