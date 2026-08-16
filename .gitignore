@@ -37,3 +37,20 @@ yarn-error.log*
 *.db
 *.db-journal
 IMPLEMENTATION_PLAN.md
+
+# AI agent instruction files (local only)
+CLAUDE.md
+AGENTS.md
+apps/web/CLAUDE.md
+apps/web/AGENTS.md
+
+# IDE
+.vscode/
+.idea/
+*.suo
+*.user
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
