@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createUnprovenDeployTx } from '@midnight-ntwrk/midnight-js-contracts';
 import { indexerPublicDataProvider } from '@midnight-ntwrk/midnight-js-indexer-public-data-provider';
 import { setNetworkId } from '@midnight-ntwrk/midnight-js-network-id';
@@ -82,8 +83,10 @@ export async function deployMidnightContract(api: any, contractName: string, con
   };
 
   // 6. Create the CompiledContract with witnesses bound
-  let compiledContract = CompiledContract.make(contractName, contractModule.Contract);
-  compiledContract = CompiledContract.withWitnesses(compiledContract, witnesses);
+  const compiledContractBase = CompiledContract.make(contractName, contractModule.Contract);
+  // @ts-expect-error: SDK witnesses type is overly strict for dynamic witness pattern
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const compiledContract: any = CompiledContract.withWitnesses(compiledContractBase, witnesses);
 
   // 7. Build the unproven deploy transaction (this gives us the contract address immediately)
   const unprovenDeployTxData = await createUnprovenDeployTx(
@@ -158,8 +161,10 @@ export async function callMidnightCircuit(
     matchIdWitness: (context: any) => [context.privateState, dummyMatchId],
   };
   
-  let compiledContract = CompiledContract.make(contractName, contractModule.Contract);
-  compiledContract = CompiledContract.withWitnesses(compiledContract, witnesses);
+  const compiledContractBase = CompiledContract.make(contractName, contractModule.Contract);
+  // @ts-expect-error: SDK witnesses type is overly strict for dynamic witness pattern
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const compiledContract: any = CompiledContract.withWitnesses(compiledContractBase, witnesses);
 
   // We need to fetch the existing state
   const stateData = await publicDataProvider.queryZSwapAndContractState(contractAddress);
@@ -169,7 +174,11 @@ export async function callMidnightCircuit(
   const contractState = stateData[1];
 
   const unprovenCallTx = await createUnprovenCallTx(
-    { zkConfigProvider: zkConfigProvider as any, walletProvider: walletProvider as any },
+    {
+      zkConfigProvider: zkConfigProvider as any,
+      walletProvider: walletProvider as any,
+      publicDataProvider: publicDataProvider as any,
+    },
     {
       compiledContract: compiledContract as any,
       contractAddress,
