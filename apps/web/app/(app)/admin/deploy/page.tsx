@@ -18,20 +18,25 @@ const CONTRACTS = [
 export default function DeployPage() {
   const { isConnected, walletAddress } = useWalletStore();
   const [deployingId, setDeployingId] = useState<string | null>(null);
-  const [deployedAddresses, setDeployedAddresses] = useState<Record<string, string>>(() => {
-    // Load persisted addresses from localStorage on first render
+  // Always start with {} so server and client render identically (avoids hydration mismatch).
+  // localStorage is loaded after mount only on the client side.
+  const [deployedAddresses, setDeployedAddresses] = useState<Record<string, string>>({});
+  const [hydrated, setHydrated] = useState(false);
+
+  // Load persisted addresses after first client render (post-hydration)
+  useEffect(() => {
     try {
       const saved = localStorage.getItem('shadowarena:deployedContracts');
-      return saved ? JSON.parse(saved) : {};
-    } catch {
-      return {};
-    }
-  });
+      if (saved) setDeployedAddresses(JSON.parse(saved));
+    } catch {}
+    setHydrated(true);
+  }, []);
 
-  // Persist to localStorage whenever addresses change
+  // Persist to localStorage whenever addresses change (only after hydration)
   useEffect(() => {
+    if (!hydrated) return;
     localStorage.setItem('shadowarena:deployedContracts', JSON.stringify(deployedAddresses));
-  }, [deployedAddresses]);
+  }, [deployedAddresses, hydrated]);
 
   const handleDeploy = async (contractId: string) => {
     if (!isConnected) {
