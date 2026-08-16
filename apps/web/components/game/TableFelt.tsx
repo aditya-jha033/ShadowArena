@@ -46,7 +46,17 @@ export function TableFelt({
         
         // For MVP, we assume Player 2 matches Player 1's 100 tDUST stake
         // In a full implementation, this amount would be fetched from the DB Match object
-        await callMidnightCircuit(api, "stake-pool", stakePoolAddress, "stakePlayer2", [100n]);
+        const txHash = await callMidnightCircuit(api, "stake-pool", stakePoolAddress, "stakePlayer2", [100n]);
+
+        import("sonner").then(({ toast }) => {
+          toast.success("Move committed to Midnight network!", {
+            description: `Tx: ${txHash.slice(0, 8)}...${txHash.slice(-8)}`,
+            action: txHash ? {
+              label: "Verify on Explorer",
+              onClick: () => window.open(`https://preview.midnightexplorer.com/transactions/${txHash}`, "_blank", "noopener,noreferrer"),
+            } : undefined,
+          });
+        });
 
         setHasCommitted(true);
       } catch (e: any) {

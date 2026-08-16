@@ -28,7 +28,7 @@ class FetchZkConfigProvider {
   }
 }
 
-export async function deployMidnightContract(api: any, contractName: string, constructorArgs: any[] = []): Promise<string> {
+export async function deployMidnightContract(api: any, contractName: string, constructorArgs: any[] = []): Promise<{ address: string, txHash: string }> {
   // Set the global network ID for Midnight-JS
   setNetworkId('preview');
 
@@ -97,11 +97,11 @@ export async function deployMidnightContract(api: any, contractName: string, con
   const balancedTx = await walletProvider.balanceTx(provenTx);
 
   // 10. Submit to Midnight via 1AM API
-  await api.submitTransaction(balancedTx.serializedHex);
+  const txResult = await api.submitTransaction(balancedTx.serializedHex);
+  const txHash = typeof txResult === 'string' ? txResult : (txResult?.txHash || txResult?.id || "");
 
-  // Return the address immediately — we don't wait for on-chain confirmation
-  // The transaction is already broadcast and will confirm in ~10-20 seconds
-  return contractAddress as string;
+  // Return both the address and the txHash
+  return { address: contractAddress as string, txHash };
 }
 
 import { createUnprovenCallTx } from '@midnight-ntwrk/midnight-js-contracts';
@@ -172,7 +172,9 @@ export async function callMidnightCircuit(
 
   const provenTx = await proofProvider.proveTx(unprovenCallTx.private.unprovenTx as any);
   const balancedTx = await walletProvider.balanceTx(provenTx);
-  await api.submitTransaction(balancedTx.serializedHex);
+  
+  const txResult = await api.submitTransaction(balancedTx.serializedHex);
+  const txHash = typeof txResult === 'string' ? txResult : (txResult?.txHash || txResult?.id || "");
 
-  return balancedTx.serializedHex;
+  return txHash;
 }

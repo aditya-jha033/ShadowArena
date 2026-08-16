@@ -64,7 +64,7 @@ export function StakeModal({ gameMode, onMatchCreated }: StakeModalProps) {
       
       const { callMidnightCircuit } = await import("@/lib/midnight/deploy");
       // stakePlayer1 requires a BigInt amount
-      await callMidnightCircuit(api, "stake-pool", stakePoolAddress, "stakePlayer1", [BigInt(amount)]);
+      const txHash = await callMidnightCircuit(api, "stake-pool", stakePoolAddress, "stakePlayer1", [BigInt(amount)]);
 
       // 2. If successful, record the match in the database
       const res = await fetch("/api/matches", {
@@ -86,7 +86,11 @@ export function StakeModal({ gameMode, onMatchCreated }: StakeModalProps) {
       const { matchId } = await res.json();
 
       toast.success(isPrivate ? "Private table created!" : `Table created with ${stake} tDUST stake!`, {
-        description: "Waiting for an opponent to join...",
+        description: `Tx: ${txHash.slice(0, 8)}...${txHash.slice(-8)}. Waiting for opponent...`,
+        action: txHash ? {
+          label: "Verify on Explorer",
+          onClick: () => window.open(`https://preview.midnightexplorer.com/transactions/${txHash}`, "_blank", "noopener,noreferrer"),
+        } : undefined,
       });
 
       setOpen(false);

@@ -86,10 +86,17 @@ export default function DeployPage() {
       const api = await w1am.connect("preview");
       
       const { deployMidnightContract } = await import("@/lib/midnight/deploy");
-      const realAddress = await deployMidnightContract(api, contractId, contract?.constructorArgs ?? []);
+      const { address: realAddress, txHash } = await deployMidnightContract(api, contractId, contract?.constructorArgs ?? []);
       
       setDeployedAddresses(prev => ({ ...prev, [contractId]: realAddress }));
-      toast.success(`${contractId} deployed successfully!`);
+      
+      toast.success(`${contractId} deployed successfully!`, {
+        description: `Tx: ${txHash.slice(0, 8)}...${txHash.slice(-8)}`,
+        action: txHash ? {
+          label: "Verify on Explorer",
+          onClick: () => window.open(`https://preview.midnightexplorer.com/transactions/${txHash}`, "_blank", "noopener,noreferrer"),
+        } : undefined,
+      });
     } catch (error: any) {
       console.error(error);
       toast.error(`Deployment failed: ${error.message || "Unknown error"}`);
