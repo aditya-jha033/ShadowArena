@@ -16,7 +16,7 @@ export async function GET() {
 
     const openTables = matches
       .filter((m) => m.players.length === 1) // Only 1 player seated = open for opponent
-      .map((m) => {
+      .map((m: any) => {
         const host = m.players[0]?.user;
         const stake = m.stakes[0];
         const addr = host?.walletAddress ?? "Unknown";

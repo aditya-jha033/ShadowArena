@@ -68,7 +68,7 @@ export async function deployMidnightContract(api: any, contractName: string, con
   // 4. Load the compiled contract module
   let contractModule: any;
   try {
-    contractModule = await import(`../../../../contracts/dist/${contractName}/contract/index.js`);
+    contractModule = await import(`../../public/contracts/${contractName}/contract/index.js`);
   } catch (e) {
     throw new Error(`Failed to load compiled contract for ${contractName}: ${e}`);
   }
@@ -148,7 +148,7 @@ export async function callMidnightCircuit(
 
   let contractModule: any;
   try {
-    contractModule = await import(`../../../../contracts/dist/${contractName}/contract/index.js`);
+    contractModule = await import(`../../public/contracts/${contractName}/contract/index.js`);
   } catch (e) {
     throw new Error(`Failed to load compiled contract for ${contractName}: ${e}`);
   }
