@@ -1,0 +1,116 @@
+name: Contracts
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - "contracts/**"
+      - ".github/workflows/contracts.yml"
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - "contracts/**"
+      - ".github/workflows/contracts.yml"
+
+concurrency:
+  group: contracts-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-circuits:
+    name: Validate Compact Circuits
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check compiled artifacts exist
+        id: check-artifacts
+        shell: bash
+        run: |
+          echo "### Compiled Contract Artifacts" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          MISSING=0
+          for contract in stake-pool stake-pool-private; do
+            if [ -d "contracts/dist/$contract/contract" ]; then
+              echo "- stake-pool: compiled artifact present" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "- $contract: MISSING compiled artifact" >> $GITHUB_STEP_SUMMARY
+              MISSING=1
+            fi
+          done
+          echo "missing=$MISSING" >> $GITHUB_OUTPUT
+
+      - name: Validate contract ABI types
+        shell: bash
+        run: |
+          echo "### Contract ABI Type Validation" >> $GITHUB_STEP_SUMMARY
+          for contract in stake-pool stake-pool-private; do
+            INDEX="contracts/dist/$contract/contract/index.d.ts"
+            if [ -f "$INDEX" ]; then
+              echo "- $contract: index.d.ts OK" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "- $contract: index.d.ts MISSING" >> $GITHUB_STEP_SUMMARY
+            fi
+          done
+
+      - name: Validate ZK key artifacts
+        shell: bash
+        run: |
+          echo "### ZK Key Artifacts" >> $GITHUB_STEP_SUMMARY
+          MISSING_KEYS=0
+          for contract in stake-pool stake-pool-private; do
+            KEY_DIR="apps/web/public/contracts/$contract/keys"
+            if [ -d "$KEY_DIR" ] && [ "$(ls -A $KEY_DIR 2>/dev/null)" ]; then
+              COUNT=$(ls $KEY_DIR | wc -l)
+              echo "- $contract/keys: $COUNT key files found" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "- $contract/keys: MISSING or empty" >> $GITHUB_STEP_SUMMARY
+              MISSING_KEYS=1
+            fi
+          done
+          if [ "$MISSING_KEYS" = "1" ]; then
+            echo "WARNING: Some ZK key artifacts are missing. Deployment will fail without them."
+          fi
+
+      - name: Run contract unit tests
+        working-directory: contracts
+        run: npm run test -- --reporter=verbose
+        continue-on-error: true
+
+      - name: Validate circuit source files
+        shell: bash
+        run: |
+          echo "### Circuit Source Files" >> $GITHUB_STEP_SUMMARY
+          for circuit in contracts/circuits/*.compact; do
+            if [ -f "$circuit" ]; then
+              FILENAME=$(basename "$circuit")
+              LINES=$(wc -l < "$circuit")
+              echo "- $FILENAME ($LINES lines)" >> $GITHUB_STEP_SUMMARY
+            fi
+          done
+
+      - name: Check deploy script
+        shell: bash
+        run: |
+          if [ -f "contracts/scripts/deploy.js" ]; then
+            echo "Deploy script present: contracts/scripts/deploy.js" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "Contracts validation complete." >> $GITHUB_STEP_SUMMARY

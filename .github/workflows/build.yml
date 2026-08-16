@@ -1,0 +1,64 @@
+name: Build
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build Next.js App
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        working-directory: apps/web
+        run: npx prisma generate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://placeholder:placeholder@localhost:5432/placeholder' }}
+
+      - name: Build web application
+        working-directory: apps/web
+        run: npm run build
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://placeholder:placeholder@localhost:5432/placeholder' }}
+          NEXT_PUBLIC_MIDNIGHT_NETWORK: preview
+          SKIP_ENV_VALIDATION: true
+
+      - name: Report build size
+        working-directory: apps/web
+        shell: bash
+        run: |
+          echo "### Build Output" >> $GITHUB_STEP_SUMMARY
+          if [ -d ".next" ]; then
+            echo "Build succeeded" >> $GITHUB_STEP_SUMMARY
+            du -sh .next/ | awk '{print "Total build size: " $1}' >> $GITHUB_STEP_SUMMARY
+          else
+            echo "Build output not found" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: nextjs-build-${{ github.sha }}
+          path: apps/web/.next/
+          retention-days: 7

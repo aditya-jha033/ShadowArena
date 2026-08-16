@@ -1,0 +1,98 @@
+name: Typecheck & Lint
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+concurrency:
+  group: lint-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  typecheck:
+    name: TypeScript Typecheck
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        working-directory: apps/web
+        run: npx prisma generate
+        env:
+          DATABASE_URL: postgresql://placeholder:placeholder@localhost:5432/placeholder
+
+      - name: Run TypeScript compiler check
+        working-directory: apps/web
+        run: npx tsc --noEmit
+        env:
+          SKIP_ENV_VALIDATION: true
+
+      - name: Report typecheck result
+        if: always()
+        run: |
+          echo "### TypeScript Check" >> $GITHUB_STEP_SUMMARY
+          echo "Status: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+
+  lint:
+    name: ESLint
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        working-directory: apps/web
+        run: npx prisma generate
+        env:
+          DATABASE_URL: postgresql://placeholder:placeholder@localhost:5432/placeholder
+
+      - name: Run ESLint
+        working-directory: apps/web
+        run: npm run lint -- --format=github
+        env:
+          SKIP_ENV_VALIDATION: true
+
+      - name: Report lint result
+        if: always()
+        run: |
+          echo "### ESLint Check" >> $GITHUB_STEP_SUMMARY
+          echo "Status: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+
+  all-checks:
+    name: All Checks Passed
+    runs-on: ubuntu-latest
+    needs: [typecheck, lint]
+    if: always()
+    steps:
+      - name: Verify all checks passed
+        run: |
+          if [[ "${{ needs.typecheck.result }}" == "failure" || "${{ needs.lint.result }}" == "failure" ]]; then
+            echo "One or more checks failed."
+            exit 1
+          fi
+          echo "All type and lint checks passed."
