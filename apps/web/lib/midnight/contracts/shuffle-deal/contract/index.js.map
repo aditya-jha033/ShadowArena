@@ -1,0 +1,8 @@
+{
+  "version": 3,
+  "file": "index.js",
+  "sourceRoot": "",
+  "sources": ["shuffle-deal.compact", "compiler/standard-library.compact"],
+  "names": [],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;EAaA;;;;;;;;;;MAQA,AAAA,QAOC;;;;;cAPuB,OAAkB;cAAE,OAAgB;;;;;;;;;;;;;;;;;;;;;;;;;yCAApC,OAAkB,+BAAE,OAAgB;;;;;;;;;0CAApC,OAAkB;0CAAE,OAAgB;;;OAO3D;;;;GAbA;EAFD;;;;;;;;;;;;;;;;;;;;;;;;;;IANA;;;;;;;;;yEAA8C;UAO5C,KAAa;IAAb;;;;;;;2HAAA,KAAa;;yEAAA;;;;;;;GACd;ECQD,AAAA,QAAuB,0CACkB;EAGzC,AAAA;EA3BA,AAAA,oBAAA,SAAA;;uDAAA;uDAAA;;;EDiBA,AAAA,iBAEC,CAF2B,OAAkB,EAAE,OAAgB;oCACzB,OAAK,EAAE,OAAK;GAClD;EAED,AAAA,WAOC,4BAPuB,OAAkB,EAAE,OAAgB;4BAEnD,OAAK;4BACL,OAAK;UAEN,YAAyC,0BAAb,OAAK,EAAE,OAAK;UAC9C,KAAa,gBAA4B,YAAU;IAAnD;;;;;;;2HAAA,KAAa;;yEAAA;;GACd;;;;;;;;;;;;;;;;IArBD;qCAAA;;;;;;;;;;;0GAA8C;KAAA;;;;;;;;;;"
+}
