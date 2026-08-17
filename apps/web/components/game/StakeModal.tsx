@@ -41,41 +41,60 @@ export function StakeModal({ gameMode, onMatchCreated }: StakeModalProps) {
       return;
     }
 
-    const contractName = isPrivate ? "stake-pool-private" : "stake-pool";
-    let contractAddress = "";
-    try {
-      const saved = localStorage.getItem('shadowarena:deployedContracts');
-      if (saved) contractAddress = JSON.parse(saved)[contractName];
-    } catch {}
-
-    if (!contractAddress) {
-      toast.error("Contract not deployed", {
-        description: `Please ask the admin to deploy the ${isPrivate ? "Private " : ""}Stake Pool contract first.`,
-      });
-      return;
-    }
-
     setIsSubmitting(true);
     try {
-      // 1. Send transaction to Midnight Network
-      toast.info("Connecting to 1AM Wallet...");
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const w1am = (window as any).midnight?.["1am"];
+      if (!w1am) throw new Error("1AM Wallet not installed");
+
       const api = await w1am.connect("preview");
+      const { deployMidnightContract, callMidnightCircuit } = await import("@/lib/midnight/deploy");
+
+      const contractName = isPrivate ? "stake-pool-private" : "stake-pool";
       
-      const { callMidnightCircuit } = await import("@/lib/midnight/deploy");
+      const withRetry = async <T,>(operation: () => Promise<T>, retries = 6, delay = 5000): Promise<T> => {
+        for (let i = 0; i < retries; i++) {
+          try {
+            return await operation();
+          } catch (e: any) {
+            const msg = e.message || String(e);
+            if ((msg.includes("Wallet busy") || msg.includes("Duplicate request") || msg.includes("pending")) && i < retries - 1) {
+              console.log(`Wallet busy/duplicate, retrying in ${delay/1000}s...`);
+              await new Promise(r => setTimeout(r, delay));
+            } else {
+              throw e;
+            }
+          }
+        }
+        throw new Error("Wallet remained busy for too long.");
+      };
+
+      toast.info("Deploying Stake Contract... (1/3)\nPlease check your 1AM wallet.", { id: "stake-toast", duration: Infinity });
+      const stakeDeployRes = await withRetry(() => deployMidnightContract(api, contractName));
+      const stakeContractAddress = stakeDeployRes.address;
+      
+      toast.info("Syncing Wallet state... please wait 8s", { id: "stake-toast", duration: Infinity });
+      await new Promise(r => setTimeout(r, 8000));
+
+      toast.info("Deploying Game Contract... (2/3)\nPlease check your 1AM wallet.", { id: "stake-toast", duration: Infinity });
+      const moveDeployRes = await withRetry(() => deployMidnightContract(api, "move-validity"));
+      const moveContractAddress = moveDeployRes.address;
+
+      toast.info("Syncing Wallet state... please wait 8s", { id: "stake-toast", duration: Infinity });
+      await new Promise(r => setTimeout(r, 8000));
+
+      toast.info("Committing Stake... (3/3)\nPlease check your 1AM wallet.", { id: "stake-toast", duration: Infinity });
       
       let txHash = "";
       if (isPrivate) {
-        toast.info("Generating ZK Proof for Private Stake... (This may take a moment)");
         const dummyNonce = new Uint8Array(32);
         crypto.getRandomValues(dummyNonce);
-        txHash = await callMidnightCircuit(api, contractName, contractAddress, "stakePrivate", [BigInt(amount), dummyNonce]);
+        txHash = await withRetry(() => callMidnightCircuit(api, contractName, stakeContractAddress, "stakePrivate", [BigInt(amount), dummyNonce]));
       } else {
-        toast.info("Generating ZK Proof for Public Stake... (This may take a moment)");
-        txHash = await callMidnightCircuit(api, contractName, contractAddress, "stakePlayer1", [BigInt(amount)]);
+        txHash = await withRetry(() => callMidnightCircuit(api, contractName, stakeContractAddress, "stakePlayer1", [BigInt(amount)]));
       }
 
+      toast.success("Match created and staked successfully! ✓", { id: "stake-toast" });
 
       // 2. If successful, record the match in the database
       const res = await fetch("/api/matches", {
@@ -86,6 +105,8 @@ export function StakeModal({ gameMode, onMatchCreated }: StakeModalProps) {
           gameMode,
           stakeAmount: amount,
           isPrivate,
+          stakeContractAddress,
+          moveContractAddress
         }),
       });
 

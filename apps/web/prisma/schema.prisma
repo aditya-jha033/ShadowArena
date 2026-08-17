@@ -22,11 +22,13 @@ model Match {
   status      String        // "pending" | "active" | "settled"
   createdAt   DateTime      @default(now())
   settledAt   DateTime?
-  players     MatchPlayer[]
-  seats       TableSeat[]
-  moves       MatchMove[]
-  stakes      Stake[]
-  payouts     Payout[]
+  players       MatchPlayer[]
+  seats         TableSeat[]
+  moves         MatchMove[]
+  stakes        Stake[]
+  payouts       Payout[]
+  stakeContract String?
+  moveContract  String?
 }
 
 model MatchPlayer {

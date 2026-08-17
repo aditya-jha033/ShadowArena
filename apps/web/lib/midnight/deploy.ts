@@ -135,8 +135,8 @@ export async function callMidnightCircuit(
     }
   };
 
-  const indexerUrl = config?.indexer || 'https://indexer.preview.midnight.network/api/v1/graphql';
-  const indexerWsUrl = config?.indexerWS || 'wss://indexer.preview.midnight.network/api/v1/graphql/ws';
+  const indexerUrl = config?.indexer || 'https://indexer.preview.midnight.network/api/v4/graphql';
+  const indexerWsUrl = config?.indexerWS || 'wss://indexer.preview.midnight.network/api/v4/graphql/ws';
   const publicDataProvider = indexerPublicDataProvider(indexerUrl, indexerWsUrl);
 
   let contractModule: any;
@@ -175,7 +175,7 @@ export async function callMidnightCircuit(
     {
       compiledContract: compiledContract as any,
       contractAddress,
-      circuitName,
+      circuitId: circuitName,
       args,
       previousPrivateState: {},
       contractState

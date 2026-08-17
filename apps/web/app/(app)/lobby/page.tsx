@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Swords, Users, Clock, ChevronRight, Shield, Zap, Trophy, Dices } from "lucide-react";
@@ -12,13 +13,18 @@ interface OpenTable {
   game: string;
   hostAddress: string;
   stake: string;
+  stake: string;
+  rawStakeAmount: number | null;
   isPrivateStake: boolean;
+  stakeContract: string | null;
   createdAt: string;
 }
 
 export default function LobbyPage() {
   const [tables, setTables] = useState<OpenTable[]>([]);
   const [loading, setLoading] = useState(true);
+  const [joiningId, setJoiningId] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const load = async () => {
@@ -32,10 +38,80 @@ export default function LobbyPage() {
       }
     };
     load();
-    // Refresh every 10 seconds
     const interval = setInterval(load, 10_000);
     return () => clearInterval(interval);
   }, []);
+
+  const handleJoinMatch = async (table: OpenTable) => {
+    try {
+      setJoiningId(table.id);
+      
+      let amount = table.rawStakeAmount;
+      if (table.isPrivateStake) {
+        const input = window.prompt("This is a Private Wager. Enter the agreed DUST amount to match Player 1:");
+        if (!input) return;
+        amount = Number(input);
+      }
+
+      if (!amount || isNaN(amount)) {
+        throw new Error("Invalid stake amount");
+      }
+
+      if (!table.stakeContract) {
+        throw new Error("Match missing stake contract address");
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const w1am = (window as any).midnight?.["1am"];
+      if (!w1am) throw new Error("1AM Wallet not installed");
+
+      const api = await w1am.connect("preview");
+      const { callMidnightCircuit } = await import("@/lib/midnight/deploy");
+
+      const contractName = table.isPrivateStake ? "stake-pool-private" : "stake-pool";
+      const circuitName = table.isPrivateStake ? "stakePrivate" : "stakePlayer2";
+
+      // For private stake, Player 2 needs a dummy nonce too
+      const args = table.isPrivateStake 
+        ? [BigInt(amount), crypto.getRandomValues(new Uint8Array(32))]
+        : [BigInt(amount)];
+
+      const withRetry = async <T,>(operation: () => Promise<T>, retries = 6, delay = 5000): Promise<T> => {
+        for (let i = 0; i < retries; i++) {
+          try {
+            return await operation();
+          } catch (e: any) {
+            if (e.message?.includes("Wallet busy") && i < retries - 1) {
+              console.log(`Wallet busy, retrying in ${delay/1000}s...`);
+              await new Promise(r => setTimeout(r, delay));
+            } else {
+              throw e;
+            }
+          }
+        }
+        throw new Error("Wallet remained busy for too long.");
+      };
+
+      await withRetry(() => callMidnightCircuit(api, contractName, table.stakeContract as string, circuitName, args));
+
+      // Update database so table disappears from open lobby
+      const addresses = await api.getShieldedAddresses();
+      await fetch(`/api/matches/${table.id}/join`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ walletAddress: addresses.shieldedCoinPublicKey })
+      });
+
+      // Now navigate to table
+      router.push(`/table/${table.id}`);
+
+    } catch (e: any) {
+      console.error(e);
+      alert(e.message || "Failed to join table");
+    } finally {
+      setJoiningId(null);
+    }
+  };
 
   return (
     <div className="flex flex-col min-h-screen pb-20 md:pb-8">
@@ -170,11 +246,14 @@ export default function LobbyPage() {
                       <Clock className="w-3 h-3" /> Waiting for opponent
                     </div>
                   </div>
-                  <Link href={`/table/${table.id}`}>
-                    <Button size="sm" className="bg-violet-600 hover:bg-violet-500 text-white text-xs px-4">
-                      Join
-                    </Button>
-                  </Link>
+                  <Button 
+                    size="sm" 
+                    className="bg-violet-600 hover:bg-violet-500 text-white text-xs px-4"
+                    onClick={() => handleJoinMatch(table)}
+                    disabled={joiningId === table.id}
+                  >
+                    {joiningId === table.id ? "Staking..." : "Join"}
+                  </Button>
                 </div>
               </div>
             ))}

@@ -29,7 +29,9 @@ export async function GET() {
           game: m.gameType === "card_duel" ? "High Card Duel" : m.gameType,
           hostAddress: shortAddr,
           stake: stake ? `${Number(stake.amount).toLocaleString()} tDUST` : "Private",
+          rawStakeAmount: stake ? Number(stake.amount) : null,
           isPrivateStake: !stake,
+          stakeContract: m.stakeContract,
           createdAt: m.createdAt,
         };
       });

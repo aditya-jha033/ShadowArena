@@ -4,7 +4,7 @@ export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
   try {
-    const { walletAddress, gameMode, stakeAmount, isPrivate } = await req.json();
+    const { walletAddress, gameMode, stakeAmount, isPrivate, stakeContractAddress, moveContractAddress } = await req.json();
 
     if (!walletAddress || !gameMode) {
       return new Response("walletAddress and gameMode are required", { status: 400 });
@@ -22,6 +22,8 @@ export async function POST(req: Request) {
       data: {
         gameType: gameMode,
         status: "pending",
+        stakeContract: stakeContractAddress || null,
+        moveContract: moveContractAddress || null,
         players: {
           create: { userId: user.id, seat: 0 },
         },

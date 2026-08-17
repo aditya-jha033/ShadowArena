@@ -1,7 +1,10 @@
 import { TableFelt } from "@/components/game/TableFelt";
+import { prisma } from "@/lib/prisma";
 
 export default async function TablePage(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
+  const match = await prisma.match.findUnique({ where: { id: params.id } });
+
   return (
     <div className="flex flex-col min-h-screen">
       <header className="px-6 h-14 flex items-center border-b border-border/40 bg-card">
@@ -12,7 +15,7 @@ export default async function TablePage(props: { params: Promise<{ id: string }>
         </div>
       </header>
       <main className="flex-1 flex flex-col">
-        <TableFelt />
+        <TableFelt contractAddress={match?.moveContract || ""} />
       </main>
     </div>
   );
