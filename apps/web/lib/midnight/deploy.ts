@@ -135,7 +135,9 @@ export async function callMidnightCircuit(
     }
   };
 
-  const publicDataProvider = indexerPublicDataProvider(config.indexer, config.indexerWS);
+  const indexerUrl = config?.indexer || 'https://indexer.preview.midnight.network/api/v1/graphql';
+  const indexerWsUrl = config?.indexerWS || 'wss://indexer.preview.midnight.network/api/v1/graphql/ws';
+  const publicDataProvider = indexerPublicDataProvider(indexerUrl, indexerWsUrl);
 
   let contractModule: any;
   try {
