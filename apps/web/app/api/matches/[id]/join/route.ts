@@ -2,9 +2,10 @@ import { prisma } from "@/lib/prisma";
 
 export async function POST(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const { walletAddress } = await req.json();
 
     if (!walletAddress) {
@@ -19,7 +20,7 @@ export async function POST(
 
     // Update match to add player 2 and set status to active
     await prisma.match.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         status: "active",
         players: {

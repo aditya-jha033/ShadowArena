@@ -2,11 +2,11 @@ import { prisma } from "@/lib/prisma";
 
 export async function POST(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // The id parameter here is actually the contractAddress because of how TableFelt calls it
-    const contractAddress = params.id;
+    const { id: contractAddress } = await params;
 
     // Find the match by contract address
     const match = await prisma.match.findFirst({

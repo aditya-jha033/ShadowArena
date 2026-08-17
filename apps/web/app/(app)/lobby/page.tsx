@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Swords, Users, Clock, ChevronRight, Shield, Zap, Trophy, Dices } from "lucide-react";
 import { StakeModal } from "@/components/game/StakeModal";
@@ -12,7 +11,6 @@ interface OpenTable {
   id: string;
   game: string;
   hostAddress: string;
-  stake: string;
   stake: string;
   rawStakeAmount: number | null;
   isPrivateStake: boolean;
@@ -29,7 +27,7 @@ export default function LobbyPage() {
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await fetch("/api/matches/open");
+        const res = await fetch("/api/matches/open", { cache: "no-store" });
         if (res.ok) setTables(await res.json());
       } catch (e) {
         console.error("Failed to load open tables", e);
@@ -80,6 +78,7 @@ export default function LobbyPage() {
         for (let i = 0; i < retries; i++) {
           try {
             return await operation();
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           } catch (e: any) {
             if (e.message?.includes("Wallet busy") && i < retries - 1) {
               console.log(`Wallet busy, retrying in ${delay/1000}s...`);
@@ -105,6 +104,7 @@ export default function LobbyPage() {
       // Now navigate to table
       router.push(`/table/${table.id}`);
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       console.error(e);
       alert(e.message || "Failed to join table");

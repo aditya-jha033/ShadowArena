@@ -42,6 +42,7 @@ export function TableFelt({
         throw new Error("Game contract address is missing from the database. Please try recreating the table.");
       }
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const w1am = (window as any).midnight?.["1am"];
       if (!w1am) throw new Error("1AM Wallet not found");
       
@@ -60,6 +61,7 @@ export function TableFelt({
         for (let i = 0; i < retries; i++) {
           try {
             return await operation();
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           } catch (e: any) {
             if (e.message?.includes("Wallet busy") && i < retries - 1) {
               console.log(`Wallet busy, retrying in ${delay/1000}s...`);
@@ -89,6 +91,7 @@ export function TableFelt({
         } else {
           txHash = await withRetry(() => callMidnightCircuit(api, "move-validity", contractAddress, "joinPlayer2", [realCommitment]));
         }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (e: any) {
         const msg = e?.message || "";
         if (msg.includes("is undefined for contract state")) {
@@ -118,6 +121,7 @@ export function TableFelt({
         },
       });
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       console.error(e);
       toast.error("Failed to commit move", { id: "commit-toast", description: e?.message || "Unknown error" });
@@ -128,6 +132,7 @@ export function TableFelt({
 
   const handleReveal = async () => {
     setIsSubmitting(true);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let moves: any = null;
     try {
       toast.info("Fetching opponent's pre-image and executing ZK Reveal...", { id: "reveal-toast" });
@@ -145,12 +150,30 @@ export function TableFelt({
       const p1Value = BigInt(moves.p1.value);
       const p2Value = BigInt(moves.p2.value);
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const w1am = (window as any).midnight?.["1am"];
       const api = await w1am.connect("preview");
       const { callMidnightCircuit } = await import("@/lib/midnight/deploy");
 
+      const withRetry = async <T,>(operation: () => Promise<T>, retries = 6, delay = 5000): Promise<T> => {
+        for (let i = 0; i < retries; i++) {
+          try {
+            return await operation();
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          } catch (e: any) {
+            if (e.message?.includes("Wallet busy") && i < retries - 1) {
+              console.log(`Wallet busy, retrying in ${delay/1000}s...`);
+              await new Promise(r => setTimeout(r, delay));
+            } else {
+              throw e;
+            }
+          }
+        }
+        throw new Error("Wallet remained busy for too long.");
+      };
+
       // Execute the REAL reveal smart contract circuit!
-      const txHash = await callMidnightCircuit(api, "move-validity", contractAddress!, "reveal", [p1Value, p1Nonce, p2Value, p2Nonce]);
+      await withRetry(() => callMidnightCircuit(api, "move-validity", contractAddress!, "reveal", [p1Value, p1Nonce, p2Value, p2Nonce]));
       
       setIsRevealed(true);
       
@@ -164,6 +187,7 @@ export function TableFelt({
 
       // Tell backend the match is finished so it cleans up the lobby/dashboard
       await fetch(`/api/matches/${contractAddress}/finish`, { method: "POST" });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       console.error(e);
       if (e.message?.includes("Not in reveal state")) {
@@ -175,6 +199,9 @@ export function TableFelt({
         const isWinner = (moves.p1.value > moves.p2.value && moves.p1.value === selectedCard) || 
                          (moves.p2.value > moves.p1.value && moves.p2.value === selectedCard);
         toast.success(isWinner ? 'Match finished! You Win!' : 'Match finished! Opponent Wins!', { id: "reveal-toast" });
+        
+        // Ensure backend marks it as finished
+        await fetch(`/api/matches/${contractAddress}/finish`, { method: "POST" });
         return;
       }
       toast.error(e.message || "Failed to reveal on-chain.", { id: "reveal-toast" });

@@ -56,6 +56,7 @@ export function StakeModal({ gameMode, onMatchCreated }: StakeModalProps) {
         for (let i = 0; i < retries; i++) {
           try {
             return await operation();
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           } catch (e: any) {
             const msg = e.message || String(e);
             if ((msg.includes("Wallet busy") || msg.includes("Duplicate request") || msg.includes("pending")) && i < retries - 1) {
