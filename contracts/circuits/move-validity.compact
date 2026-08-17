@@ -24,7 +24,7 @@ constructor() {
   isDraw = false;
 }
 
-pure circuit makeCommitment(value: Uint<0..11>, nonce: Bytes<32>): Bytes<32> {
+export pure circuit makeCommitment(value: Uint<0..11>, nonce: Bytes<32>): Bytes<32> {
   return persistentCommit<Uint<0..11>>(value, nonce);
 }
 
