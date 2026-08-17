@@ -11,8 +11,10 @@ export ledger maxPlayers: Uint<64>;
 export ledger potAmount: Uint<64>; // public aggregate pot
 export ledger payoutWinner: Maybe<Bytes<32>>;
 
-// Map player address to their stake commitment (hiding the exact amount)
-export ledger playerStakes: Map<Bytes<32>, Bytes<32>>;
+export ledger p1Address: Maybe<Bytes<32>>;
+export ledger p2Address: Maybe<Bytes<32>>;
+export ledger p1Commitment: Maybe<Bytes<32>>;
+export ledger p2Commitment: Maybe<Bytes<32>>;
 
 witness callerAddress(): Bytes<32>;
 witness matchIdWitness(): Bytes<32>;
@@ -26,6 +28,11 @@ constructor(max: Uint<64>) {
   maxPlayers = disclose(max);
   potAmount = 0;
   payoutWinner = none<Bytes<32>>();
+  
+  p1Address = none<Bytes<32>>();
+  p2Address = none<Bytes<32>>();
+  p1Commitment = none<Bytes<32>>();
+  p2Commitment = none<Bytes<32>>();
 }
 
 pure circuit makeCommitment(amount: Uint<64>, nonce: Bytes<32>): Bytes<32> {
@@ -37,14 +44,18 @@ export circuit stakePrivate(amount: Uint<64>, nonce: Bytes<32>): [] {
   assert(playerCount < maxPlayers, "Table is full");
   
   const caller = disclose(callerAddress());
-  assert(!playerStakes.member(caller), "Player already staked");
-  
-  // The player commits to their stake amount
   const commitment = makeCommitment(amount, nonce);
-  playerStakes.insert(caller, disclose(commitment));
   
-  // Update public pot (Note: in a fully private pool, even potAmount might be hidden,
-  // but we keep it public for Phase 3 UI)
+  if (!p1Address.is_some) {
+    p1Address = disclose(some<Bytes<32>>(caller));
+    p1Commitment = disclose(some<Bytes<32>>(commitment));
+  } else {
+    assert(!p2Address.is_some, "Table is full");
+    assert(caller != p1Address.value, "Player already staked");
+    p2Address = disclose(some<Bytes<32>>(caller));
+    p2Commitment = disclose(some<Bytes<32>>(commitment));
+  }
+  
   potAmount = (potAmount + disclose(amount)) as Uint<64>;
   playerCount = (playerCount + 1) as Uint<64>;
 }
@@ -58,9 +69,8 @@ export circuit lockPool(): [] {
 export circuit settleWinner(winner: Bytes<32>): [] {
   assert(state == PoolState.LOCKED, "Pool not locked");
   const pubWinner = disclose(winner);
-  assert(playerStakes.member(pubWinner), "Winner is not in the game");
+  assert(pubWinner == p1Address.value || pubWinner == p2Address.value, "Winner is not in the game");
   
-  // Backend provides proof of win condition.
   payoutWinner = disclose(some<Bytes<32>>(pubWinner));
   state = PoolState.SETTLED;
 }

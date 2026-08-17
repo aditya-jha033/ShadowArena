@@ -44,13 +44,10 @@ export type Ledger = {
   readonly maxPlayers: bigint;
   readonly potAmount: bigint;
   readonly payoutWinner: { is_some: boolean, value: Uint8Array };
-  playerStakes: {
-    isEmpty(): boolean;
-    size(): bigint;
-    member(key_0: Uint8Array): boolean;
-    lookup(key_0: Uint8Array): Uint8Array;
-    [Symbol.iterator](): Iterator<[Uint8Array, Uint8Array]>
-  };
+  readonly p1Address: { is_some: boolean, value: Uint8Array };
+  readonly p2Address: { is_some: boolean, value: Uint8Array };
+  readonly p1Commitment: { is_some: boolean, value: Uint8Array };
+  readonly p2Commitment: { is_some: boolean, value: Uint8Array };
 }
 
 export type ContractReferenceLocations = any;
