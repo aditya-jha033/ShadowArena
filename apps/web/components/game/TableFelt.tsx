@@ -74,29 +74,30 @@ export function TableFelt({
 
       let txHash = "";
       let playerRole = "p1";
+      
+      // Determine role based on backend state
+      const stateRes = await fetch(`/api/matches/${contractAddress}/moves`);
+      const stateData = await stateRes.json();
+      
+      if (stateData.p1) {
+        playerRole = "p2";
+      }
+
       try {
-        // Try playing as Player 1
-        txHash = await withRetry(() => callMidnightCircuit(api, "move-validity", contractAddress, "joinPlayer1", [realCommitment]));
-        playerRole = "p1";
+        if (playerRole === "p1") {
+          txHash = await withRetry(() => callMidnightCircuit(api, "move-validity", contractAddress, "joinPlayer1", [realCommitment]));
+        } else {
+          txHash = await withRetry(() => callMidnightCircuit(api, "move-validity", contractAddress, "joinPlayer2", [realCommitment]));
+        }
       } catch (e: any) {
-        const msg1 = e?.message || "";
-        if (msg1.includes("is undefined for contract state")) {
+        const msg = e?.message || "";
+        if (msg.includes("is undefined for contract state")) {
           throw new Error("You pasted the wrong contract address! Please make sure you paste the 'move-validity' contract address, not the stake pool.");
         }
-
-        // If Player 1 already played on this contract, try Player 2
-        console.warn("P1 fallback:", msg1);
-        
-        try {
-          txHash = await withRetry(() => callMidnightCircuit(api, "move-validity", contractAddress, "joinPlayer2", [realCommitment]));
-          playerRole = "p2";
-        } catch (e2: any) {
-          const msg = e2?.message || "";
-          if (msg.includes("Not waiting for P2") || msg.includes("failed assert")) {
-             throw new Error("This game is already finished/locked! For the demo, you must deploy a fresh move-validity contract from the Admin page for each new game.");
-          }
-          throw e2;
+        if (msg.includes("Not waiting") || msg.includes("failed assert")) {
+           throw new Error("This table's smart contract is already locked or finished. Please go to the Lobby and create a new Table!");
         }
+        throw e;
       }
 
       // Save pre-images to the backend so the opponent can fetch them for the reveal step
@@ -127,11 +128,12 @@ export function TableFelt({
 
   const handleReveal = async () => {
     setIsSubmitting(true);
+    let moves: any = null;
     try {
       toast.info("Fetching opponent's pre-image and executing ZK Reveal...", { id: "reveal-toast" });
       
       const res = await fetch(`/api/matches/${contractAddress}/moves`);
-      const moves = await res.json();
+      moves = await res.json();
       
       if (!moves.p1 || !moves.p2) {
         throw new Error("Cannot reveal yet: Both players have not committed to the backend.");
@@ -159,8 +161,22 @@ export function TableFelt({
                        (moves.p2.value > moves.p1.value && moves.p2.value === selectedCard);
                        
       toast.success(isWinner ? 'You Win! Pot distributed.' : 'Opponent Wins! Pot distributed.', { id: "reveal-toast" });
+
+      // Tell backend the match is finished so it cleans up the lobby/dashboard
+      await fetch(`/api/matches/${contractAddress}/finish`, { method: "POST" });
     } catch (e: any) {
       console.error(e);
+      if (e.message?.includes("Not in reveal state")) {
+        // The opponent likely already clicked reveal and settled the contract!
+        setIsRevealed(true);
+        // We still have the moves from the API, so we can show the result locally
+        const opponentVal = moves.p1.value === selectedCard ? moves.p2.value : moves.p1.value;
+        setOpponentCard(opponentVal);
+        const isWinner = (moves.p1.value > moves.p2.value && moves.p1.value === selectedCard) || 
+                         (moves.p2.value > moves.p1.value && moves.p2.value === selectedCard);
+        toast.success(isWinner ? 'Match finished! You Win!' : 'Match finished! Opponent Wins!', { id: "reveal-toast" });
+        return;
+      }
       toast.error(e.message || "Failed to reveal on-chain.", { id: "reveal-toast" });
     } finally {
       setIsSubmitting(false);
