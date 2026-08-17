@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Midnight-Network-blueviolet?style=for-the-badge" alt="Midnight Network">
+  <img src="https://img.shields.io/badge/Midnight_Preview_Network-8B5CF6?style=for-the-badge" alt="Midnight Preview Network">
   <img src="https://img.shields.io/badge/Compact-ZK-black?style=for-the-badge" alt="Compact">
   <img src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=next.js&logoColor=white" alt="Next.js">
   <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript">
@@ -24,13 +24,15 @@
 - **🌐 Live Vercel Deployment:** [Shadow Arena Web](https://shadow-arena-preview.vercel.app/)
 - **🐦 X (Twitter) Profile:** [@shadowarenaweb3](https://x.com/shadowarenaweb3)
 
-### Midnight Explorer Links
+### 🌐 Midnight Preview Network Explorer Links
 
-- **Deployed Contract Address:** [View on 1AM Explorer](https://explorer.1am.xyz/contract/61b3cbc9cc4aad461f57541dbbf7b57b9b2b01b3844a87da3eff71f2e3723add)
-- **Player 1 Join TX:** [View Transaction](https://explorer.1am.xyz/tx/91f0ea51d4b9f875f350b800ed40c334af56cfe8d1b1d9f45cfbb5a9fff60853?network=preview)
-- **Player 2 Join TX:** [View Transaction](https://explorer.1am.xyz/tx/4d4c0d3cbc7213a876133d352b1368e4dec8a03a7e95c8dbf18914021df699e0?network=preview)
-- **Player 1 Stake TX:** [View Transaction](https://explorer.1am.xyz/tx/c96cc4968f58d846f6543f032bc694f1108c2a01518f3f1d1366ce6888e91c33?network=preview)
-- **Player 2 Stake TX:** [View Transaction](https://explorer.1am.xyz/tx/7e3c9d11eae4b55c84a9d6aee9d6e30a0ffe95fc369c21d429f836b44535bc32?network=preview)
+*All smart contracts and transactions are currently deployed live on the **Midnight Preview Network**.*
+
+- **Deployed Contract Address (Previewnet):** [View on 1AM Explorer](https://explorer.1am.xyz/contract/61b3cbc9cc4aad461f57541dbbf7b57b9b2b01b3844a87da3eff71f2e3723add)
+- **Player 1 Join TX (Previewnet):** [View Transaction](https://explorer.1am.xyz/tx/91f0ea51d4b9f875f350b800ed40c334af56cfe8d1b1d9f45cfbb5a9fff60853?network=preview)
+- **Player 2 Join TX (Previewnet):** [View Transaction](https://explorer.1am.xyz/tx/4d4c0d3cbc7213a876133d352b1368e4dec8a03a7e95c8dbf18914021df699e0?network=preview)
+- **Player 1 Stake TX (Previewnet):** [View Transaction](https://explorer.1am.xyz/tx/c96cc4968f58d846f6543f032bc694f1108c2a01518f3f1d1366ce6888e91c33?network=preview)
+- **Player 2 Stake TX (Previewnet):** [View Transaction](https://explorer.1am.xyz/tx/7e3c9d11eae4b55c84a9d6aee9d6e30a0ffe95fc369c21d429f836b44535bc32?network=preview)
 
 ### 📖 Extended Documentation
 
@@ -89,7 +91,7 @@ Shadow Arena strictly adheres to Midnight's data protection programming model:
 
 ## 📜 Smart Contracts
 
-Shadow Arena utilizes two distinct Midnight `.compact` circuits:
+Shadow Arena utilizes two distinct Midnight `.compact` circuits, both deployed to the **Midnight Preview Network**:
 
 1. **`stake-pool.compact`:** Manages the Escrow logic. It holds the `tDUST` from both players securely on the Midnight Network until the winner is mathematically determined.
 2. **`move-validity.compact`:** The core ZK circuit. It verifies the Blake2b hashes of both players' cards, mathematically evaluates which card is higher without revealing the actual values, and triggers the payout.
