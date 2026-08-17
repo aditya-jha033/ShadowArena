@@ -19,6 +19,7 @@ export function TableFelt({
 }) {
   const [hasCommitted, setHasCommitted] = useState(false);
   const [isRevealed, setIsRevealed] = useState(false);
+  const [opponentCard, setOpponentCard] = useState<number | null>(null);
 
   const [selectedCard, setSelectedCard] = useState<number | null>(null);
 
@@ -41,16 +42,19 @@ export function TableFelt({
         throw new Error("Game contract address is missing from the database. Please try recreating the table.");
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const w1am = (window as any).midnight?.["1am"];
       if (!w1am) throw new Error("1AM Wallet not found");
       
       const api = await w1am.connect("preview");
       const { callMidnightCircuit } = await import("@/lib/midnight/deploy");
+      const { pureCircuits } = await import("@/lib/midnight/contracts/move-validity/contract");
       
-      // Generate a mock 32-byte commitment
-      const dummyCommitment = new Uint8Array(32);
-      crypto.getRandomValues(dummyCommitment);
+      // Generate a real cryptographic 32-byte nonce
+      const myNonce = new Uint8Array(32);
+      crypto.getRandomValues(myNonce);
+
+      // Compute the real ZK commitment locally using the exported pure circuit!
+      const realCommitment = pureCircuits.makeCommitment(BigInt(selectedCard), myNonce);
 
       const withRetry = async <T,>(operation: () => Promise<T>, retries = 6, delay = 5000): Promise<T> => {
         for (let i = 0; i < retries; i++) {
@@ -69,9 +73,11 @@ export function TableFelt({
       };
 
       let txHash = "";
+      let playerRole = "p1";
       try {
         // Try playing as Player 1
-        txHash = await withRetry(() => callMidnightCircuit(api, "move-validity", contractAddress, "joinPlayer1", [dummyCommitment]));
+        txHash = await withRetry(() => callMidnightCircuit(api, "move-validity", contractAddress, "joinPlayer1", [realCommitment]));
+        playerRole = "p1";
       } catch (e: any) {
         const msg1 = e?.message || "";
         if (msg1.includes("is undefined for contract state")) {
@@ -82,7 +88,8 @@ export function TableFelt({
         console.warn("P1 fallback:", msg1);
         
         try {
-          txHash = await withRetry(() => callMidnightCircuit(api, "move-validity", contractAddress, "joinPlayer2", [dummyCommitment]));
+          txHash = await withRetry(() => callMidnightCircuit(api, "move-validity", contractAddress, "joinPlayer2", [realCommitment]));
+          playerRole = "p2";
         } catch (e2: any) {
           const msg = e2?.message || "";
           if (msg.includes("Not waiting for P2") || msg.includes("failed assert")) {
@@ -91,6 +98,13 @@ export function TableFelt({
           throw e2;
         }
       }
+
+      // Save pre-images to the backend so the opponent can fetch them for the reveal step
+      await fetch(`/api/matches/${contractAddress}/moves`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ player: playerRole, value: selectedCard, nonce: Array.from(myNonce) }),
+      });
 
       setHasCommitted(true);
       toast.success("Move committed to Midnight network! ✓", {
@@ -111,23 +125,46 @@ export function TableFelt({
     }
   };
 
-  const handleReveal = () => {
+  const handleReveal = async () => {
     setIsSubmitting(true);
-    toast.promise(
-      new Promise(resolve => setTimeout(resolve, 2000)),
-      {
-        loading: 'Decrypting opponent commitment via ZK circuit...',
-        success: () => {
-          setIsRevealed(true);
-          setIsSubmitting(false);
-          const isWinner = selectedCard !== null && selectedCard > 7;
-          return isWinner 
-            ? 'You Win! Smart contract has distributed the pot.'
-            : 'Opponent Wins! Smart contract has distributed the pot.';
-        },
-        error: 'Failed to reveal',
+    try {
+      toast.info("Fetching opponent's pre-image and executing ZK Reveal...", { id: "reveal-toast" });
+      
+      const res = await fetch(`/api/matches/${contractAddress}/moves`);
+      const moves = await res.json();
+      
+      if (!moves.p1 || !moves.p2) {
+        throw new Error("Cannot reveal yet: Both players have not committed to the backend.");
       }
-    );
+
+      // Reconstruct nonces from array format
+      const p1Nonce = new Uint8Array(moves.p1.nonce);
+      const p2Nonce = new Uint8Array(moves.p2.nonce);
+      const p1Value = BigInt(moves.p1.value);
+      const p2Value = BigInt(moves.p2.value);
+
+      const w1am = (window as any).midnight?.["1am"];
+      const api = await w1am.connect("preview");
+      const { callMidnightCircuit } = await import("@/lib/midnight/deploy");
+
+      // Execute the REAL reveal smart contract circuit!
+      const txHash = await callMidnightCircuit(api, "move-validity", contractAddress!, "reveal", [p1Value, p1Nonce, p2Value, p2Nonce]);
+      
+      setIsRevealed(true);
+      
+      const opponentVal = moves.p1.value === selectedCard ? moves.p2.value : moves.p1.value;
+      setOpponentCard(opponentVal);
+      
+      const isWinner = (moves.p1.value > moves.p2.value && moves.p1.value === selectedCard) || 
+                       (moves.p2.value > moves.p1.value && moves.p2.value === selectedCard);
+                       
+      toast.success(isWinner ? 'You Win! Pot distributed.' : 'Opponent Wins! Pot distributed.', { id: "reveal-toast" });
+    } catch (e: any) {
+      console.error(e);
+      toast.error(e.message || "Failed to reveal on-chain.", { id: "reveal-toast" });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -143,16 +180,16 @@ export function TableFelt({
               Seat {i + 2}
             </div>
             <div className="flex -space-x-12 scale-75">
-              <PlayingCard isHidden={!isRevealed} value={isRevealed ? 7 : undefined} skin={cardBackSkin} />
+              <PlayingCard isHidden={!isRevealed} value={isRevealed && opponentCard !== null ? opponentCard : undefined} skin={cardBackSkin} />
             </div>
             {hasCommitted && !isRevealed && (
               <div className="text-xs text-primary font-mono bg-primary/10 px-2 py-1 rounded-full border border-primary/20">
                 Committed ✓
               </div>
             )}
-            {isRevealed && (
-              <div className={`text-xs font-bold font-mono px-2 py-1 ${(selectedCard && selectedCard < 7) ? "text-amber-400" : "text-muted-foreground"}`}>
-                {selectedCard && selectedCard < 7 ? "WINNER (7)" : "LOSER (7)"}
+            {isRevealed && opponentCard !== null && (
+              <div className={`text-xs font-bold font-mono px-2 py-1 ${(selectedCard && selectedCard < opponentCard) ? "text-amber-400" : "text-muted-foreground"}`}>
+                {selectedCard && selectedCard < opponentCard ? `WINNER (${opponentCard})` : `LOSER (${opponentCard})`}
               </div>
             )}
           </div>
@@ -164,10 +201,10 @@ export function TableFelt({
         <div className="w-64 h-64 rounded-full border border-border/30 bg-card/20 flex flex-col items-center justify-center backdrop-blur-sm relative">
           <div className="absolute inset-0 rounded-full border border-primary/10 animate-ping opacity-20 pointer-events-none" />
           {hasCommitted ? (
-            isRevealed ? (
+            isRevealed && opponentCard !== null ? (
               <div className="text-center space-y-4 relative z-10">
-                <div className={`text-xl font-bold ${(selectedCard && selectedCard > 7) ? "text-amber-400" : "text-red-400"}`}>
-                  {(selectedCard && selectedCard > 7) ? "YOU WIN" : "YOU LOSE"}
+                <div className={`text-xl font-bold ${(selectedCard && selectedCard > opponentCard) ? "text-amber-400" : "text-red-400"}`}>
+                  {(selectedCard && selectedCard > opponentCard) ? "YOU WIN" : "YOU LOSE"}
                 </div>
                 <div className="text-sm text-muted-foreground">Pot has been settled on-chain.</div>
               </div>

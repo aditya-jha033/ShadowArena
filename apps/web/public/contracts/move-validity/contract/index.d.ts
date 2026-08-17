@@ -32,9 +32,13 @@ export type ProvableCircuits<PS> = {
 }
 
 export type PureCircuits = {
+  makeCommitment(value_0: bigint, nonce_0: Uint8Array): Uint8Array;
 }
 
 export type Circuits<PS> = {
+  makeCommitment(context: __compactRuntime.CircuitContext<PS>,
+                 value_0: bigint,
+                 nonce_0: Uint8Array): __compactRuntime.CircuitResults<PS, Uint8Array>;
   joinPlayer1(context: __compactRuntime.CircuitContext<PS>,
               commitment_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
   joinPlayer2(context: __compactRuntime.CircuitContext<PS>,

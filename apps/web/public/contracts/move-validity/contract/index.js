@@ -89,6 +89,9 @@ export class Contract {
     }
     this.witnesses = witnesses_0;
     this.circuits = {
+      makeCommitment(context, ...args_1) {
+        return { result: pureCircuits.makeCommitment(...args_1), context };
+      },
       joinPlayer1: (...args_1) => {
         if (args_1.length !== 2) {
           throw new __compactRuntime.CompactError(`joinPlayer1: expected 2 arguments (as invoked from Typescript), received ${args_1.length}`);
@@ -98,14 +101,14 @@ export class Contract {
         if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.currentQueryContext != undefined)) {
           __compactRuntime.typeError('joinPlayer1',
                                      'argument 1 (as invoked from Typescript)',
-                                     'move-validity.compact line 33 char 1',
+                                     'move-validity.compact line 31 char 1',
                                      'CircuitContext',
                                      contextOrig_0)
         }
         if (!(commitment_0.buffer instanceof ArrayBuffer && commitment_0.BYTES_PER_ELEMENT === 1 && commitment_0.length === 32)) {
           __compactRuntime.typeError('joinPlayer1',
                                      'argument 1 (argument 2 as invoked from Typescript)',
-                                     'move-validity.compact line 33 char 1',
+                                     'move-validity.compact line 31 char 1',
                                      'Bytes<32>',
                                      commitment_0)
         }
@@ -134,14 +137,14 @@ export class Contract {
         if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.currentQueryContext != undefined)) {
           __compactRuntime.typeError('joinPlayer2',
                                      'argument 1 (as invoked from Typescript)',
-                                     'move-validity.compact line 40 char 1',
+                                     'move-validity.compact line 38 char 1',
                                      'CircuitContext',
                                      contextOrig_0)
         }
         if (!(commitment_0.buffer instanceof ArrayBuffer && commitment_0.BYTES_PER_ELEMENT === 1 && commitment_0.length === 32)) {
           __compactRuntime.typeError('joinPlayer2',
                                      'argument 1 (argument 2 as invoked from Typescript)',
-                                     'move-validity.compact line 40 char 1',
+                                     'move-validity.compact line 38 char 1',
                                      'Bytes<32>',
                                      commitment_0)
         }
@@ -173,35 +176,35 @@ export class Contract {
         if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.currentQueryContext != undefined)) {
           __compactRuntime.typeError('reveal',
                                      'argument 1 (as invoked from Typescript)',
-                                     'move-validity.compact line 47 char 1',
+                                     'move-validity.compact line 45 char 1',
                                      'CircuitContext',
                                      contextOrig_0)
         }
         if (!(typeof(p1Value_0) === 'bigint' && p1Value_0 >= 0n && p1Value_0 <= 10n)) {
           __compactRuntime.typeError('reveal',
                                      'argument 1 (argument 2 as invoked from Typescript)',
-                                     'move-validity.compact line 47 char 1',
+                                     'move-validity.compact line 45 char 1',
                                      'Uint<0..11>',
                                      p1Value_0)
         }
         if (!(p1Nonce_0.buffer instanceof ArrayBuffer && p1Nonce_0.BYTES_PER_ELEMENT === 1 && p1Nonce_0.length === 32)) {
           __compactRuntime.typeError('reveal',
                                      'argument 2 (argument 3 as invoked from Typescript)',
-                                     'move-validity.compact line 47 char 1',
+                                     'move-validity.compact line 45 char 1',
                                      'Bytes<32>',
                                      p1Nonce_0)
         }
         if (!(typeof(p2Value_0) === 'bigint' && p2Value_0 >= 0n && p2Value_0 <= 10n)) {
           __compactRuntime.typeError('reveal',
                                      'argument 3 (argument 4 as invoked from Typescript)',
-                                     'move-validity.compact line 47 char 1',
+                                     'move-validity.compact line 45 char 1',
                                      'Uint<0..11>',
                                      p2Value_0)
         }
         if (!(p2Nonce_0.buffer instanceof ArrayBuffer && p2Nonce_0.BYTES_PER_ELEMENT === 1 && p2Nonce_0.length === 32)) {
           __compactRuntime.typeError('reveal',
                                      'argument 4 (argument 5 as invoked from Typescript)',
-                                     'move-validity.compact line 47 char 1',
+                                     'move-validity.compact line 45 char 1',
                                      'Bytes<32>',
                                      p2Nonce_0)
         }
@@ -826,7 +829,30 @@ const _emptyContext = {
   currentQueryContext: new __compactRuntime.QueryContext(new __compactRuntime.ContractState().data, __compactRuntime.dummyContractAddress())
 };
 const _dummyContract = new Contract({ callerAddress: (...args) => undefined });
-export const pureCircuits = {};
+export const pureCircuits = {
+  makeCommitment: (...args_0) => {
+    if (args_0.length !== 2) {
+      throw new __compactRuntime.CompactError(`makeCommitment: expected 2 arguments (as invoked from Typescript), received ${args_0.length}`);
+    }
+    const value_0 = args_0[0];
+    const nonce_0 = args_0[1];
+    if (!(typeof(value_0) === 'bigint' && value_0 >= 0n && value_0 <= 10n)) {
+      __compactRuntime.typeError('makeCommitment',
+                                 'argument 1',
+                                 'move-validity.compact line 27 char 1',
+                                 'Uint<0..11>',
+                                 value_0)
+    }
+    if (!(nonce_0.buffer instanceof ArrayBuffer && nonce_0.BYTES_PER_ELEMENT === 1 && nonce_0.length === 32)) {
+      __compactRuntime.typeError('makeCommitment',
+                                 'argument 2',
+                                 'move-validity.compact line 27 char 1',
+                                 'Bytes<32>',
+                                 nonce_0)
+    }
+    return _dummyContract._makeCommitment_0(value_0, nonce_0);
+  }
+};
 export const contractReferenceLocations =
   { tag: 'publicLedgerArray', indices: { } };
 //# sourceMappingURL=index.js.map
