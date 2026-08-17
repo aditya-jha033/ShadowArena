@@ -28,12 +28,10 @@ export async function GET(req: Request) {
 
     const activity = matchPlayers.map((mp) => {
       const stake = mp.match.stakes[0];
-      const payout = mp.match.payouts[0];
       const stakeAmount = Number(stake?.amount ?? 0);
-      const payoutAmount = Number(payout?.amount ?? 0);
 
       let amountDisplay = "—";
-      if (mp.result === "win") amountDisplay = `+${payoutAmount - stakeAmount}`;
+      if (mp.result === "win") amountDisplay = `+${stakeAmount}`;
       else if (mp.result === "loss") amountDisplay = `-${stakeAmount}`;
       else if (mp.result === "draw") amountDisplay = "+0";
 

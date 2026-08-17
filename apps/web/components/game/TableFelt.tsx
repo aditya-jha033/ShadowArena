@@ -5,6 +5,7 @@ import { PlayingCard } from "./PlayingCard";
 import { Button } from "@/components/ui/button";
 
 import { toast } from "sonner";
+import { useWalletStore } from "@/lib/midnight/wallet";
 
 export function TableFelt({ 
   players = 4,
@@ -20,6 +21,7 @@ export function TableFelt({
   const [hasCommitted, setHasCommitted] = useState(false);
   const [isRevealed, setIsRevealed] = useState(false);
   const [opponentCard, setOpponentCard] = useState<number | null>(null);
+  const { walletAddress } = useWalletStore();
 
   const [selectedCard, setSelectedCard] = useState<number | null>(null);
 
@@ -177,31 +179,51 @@ export function TableFelt({
       
       setIsRevealed(true);
       
-      const opponentVal = moves.p1.value === selectedCard ? moves.p2.value : moves.p1.value;
-      setOpponentCard(opponentVal);
-      
-      const isWinner = (moves.p1.value > moves.p2.value && moves.p1.value === selectedCard) || 
-                       (moves.p2.value > moves.p1.value && moves.p2.value === selectedCard);
-                       
-      toast.success(isWinner ? 'You Win! Pot distributed.' : 'Opponent Wins! Pot distributed.', { id: "reveal-toast" });
+      const myValue = selectedCard!;
+      const opValue = moves.p1.value === myValue ? moves.p2.value : moves.p1.value;
+      setOpponentCard(opValue);
+      let resultStr = "loss";
+      if (myValue > opValue) resultStr = "win";
+      else if (myValue === opValue) resultStr = "draw";
 
+      toast.success(
+        resultStr === "win" ? 'Match finished! You Win!' : resultStr === "draw" ? 'Match finished! It\'s a Draw!' : 'Match finished! Opponent Wins!', 
+        { id: "reveal-toast" }
+      );
+      
       // Tell backend the match is finished so it cleans up the lobby/dashboard
-      await fetch(`/api/matches/${contractAddress}/finish`, { method: "POST" });
+      await fetch(`/api/matches/${contractAddress}/finish`, { 
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ walletAddress, result: resultStr }),
+        keepalive: true
+      });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
-      console.error(e);
       if (e.message?.includes("Not in reveal state")) {
         // The opponent likely already clicked reveal and settled the contract!
         setIsRevealed(true);
         // We still have the moves from the API, so we can show the result locally
         const opponentVal = moves.p1.value === selectedCard ? moves.p2.value : moves.p1.value;
         setOpponentCard(opponentVal);
-        const isWinner = (moves.p1.value > moves.p2.value && moves.p1.value === selectedCard) || 
-                         (moves.p2.value > moves.p1.value && moves.p2.value === selectedCard);
-        toast.success(isWinner ? 'Match finished! You Win!' : 'Match finished! Opponent Wins!', { id: "reveal-toast" });
+        const myValue = selectedCard!;
+        const opValue = moves.p1.value === myValue ? moves.p2.value : moves.p1.value;
+        let resultStr = "loss";
+        if (myValue > opValue) resultStr = "win";
+        else if (myValue === opValue) resultStr = "draw";
+
+        toast.success(
+          resultStr === "win" ? 'Match finished! You Win!' : resultStr === "draw" ? 'Match finished! It\'s a Draw!' : 'Match finished! Opponent Wins!', 
+          { id: "reveal-toast" }
+        );
         
         // Ensure backend marks it as finished
-        await fetch(`/api/matches/${contractAddress}/finish`, { method: "POST" });
+        await fetch(`/api/matches/${contractAddress}/finish`, { 
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ walletAddress, result: resultStr }),
+          keepalive: true
+        });
         return;
       }
       toast.error(e.message || "Failed to reveal on-chain.", { id: "reveal-toast" });

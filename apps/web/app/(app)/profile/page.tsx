@@ -74,10 +74,9 @@ export default function ProfilePage() {
               Connect your wallet to see your inventory.
             </div>
           ) : (
-            <div className="rounded-2xl border border-white/[0.07] py-16 text-center text-muted-foreground text-sm">
+            <div className="rounded-2xl border border-white/[0.07] py-16 text-center text-muted-foreground text-sm bg-black/20">
               <Box className="w-10 h-10 mx-auto mb-3 opacity-30" />
-              Your cosmetic inventory is empty.<br />
-              Visit the Marketplace to acquire items.
+              Cosmetic items will be available in Phase 2.
             </div>
           )}
         </section>

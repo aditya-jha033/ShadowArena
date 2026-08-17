@@ -11,9 +11,57 @@ export async function POST(
     // Find the match by contract address
     const match = await prisma.match.findFirst({
       where: { moveContract: contractAddress },
+      include: { players: { include: { user: true } } }
     });
 
     if (match) {
+      // Read moves to determine winner deterministically on the backend
+      let moves: any = {};
+      try {
+        const fs = require('fs');
+        const path = require('path');
+        const movesFile = path.join(process.cwd(), '.moves.json');
+        if (fs.existsSync(movesFile)) {
+          moves = JSON.parse(fs.readFileSync(movesFile, 'utf8'));
+        }
+      } catch (e) {
+        console.error("Failed to read moves", e);
+      }
+
+      const matchMoves = moves[contractAddress];
+      if (matchMoves && matchMoves.p1 && matchMoves.p2) {
+        const p1Val = Number(matchMoves.p1.value);
+        const p2Val = Number(matchMoves.p2.value);
+
+        let p1Result = "loss";
+        let p2Result = "loss";
+        if (p1Val > p2Val) {
+          p1Result = "win";
+        } else if (p2Val > p1Val) {
+          p2Result = "win";
+        } else {
+          p1Result = "draw";
+          p2Result = "draw";
+        }
+
+        // Update both players natively!
+        const p1 = match.players.find((p: any) => p.seat === 0);
+        const p2 = match.players.find((p: any) => p.seat === 1);
+
+        if (p1) {
+          await prisma.matchPlayer.update({
+            where: { id: p1.id },
+            data: { result: p1Result }
+          });
+        }
+        if (p2) {
+          await prisma.matchPlayer.update({
+            where: { id: p2.id },
+            data: { result: p2Result }
+          });
+        }
+      }
+
       // Mark as finished
       await prisma.match.update({
         where: { id: match.id },
