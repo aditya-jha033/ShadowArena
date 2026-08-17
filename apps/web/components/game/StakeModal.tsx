@@ -41,16 +41,16 @@ export function StakeModal({ gameMode, onMatchCreated }: StakeModalProps) {
       return;
     }
 
-    // Read the deployed contract address from localStorage
-    let stakePoolAddress = "";
+    const contractName = isPrivate ? "stake-pool-private" : "stake-pool";
+    let contractAddress = "";
     try {
       const saved = localStorage.getItem('shadowarena:deployedContracts');
-      if (saved) stakePoolAddress = JSON.parse(saved)["stake-pool"];
+      if (saved) contractAddress = JSON.parse(saved)[contractName];
     } catch {}
 
-    if (!stakePoolAddress) {
+    if (!contractAddress) {
       toast.error("Contract not deployed", {
-        description: "Please ask the admin to deploy the Stake Pool contract first.",
+        description: `Please ask the admin to deploy the ${isPrivate ? "Private " : ""}Stake Pool contract first.`,
       });
       return;
     }
@@ -58,14 +58,24 @@ export function StakeModal({ gameMode, onMatchCreated }: StakeModalProps) {
     setIsSubmitting(true);
     try {
       // 1. Send transaction to Midnight Network
-      toast.info("Check your 1AM Wallet to approve the stake transaction...");
+      toast.info("Connecting to 1AM Wallet...");
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const w1am = (window as any).midnight?.["1am"];
       const api = await w1am.connect("preview");
       
       const { callMidnightCircuit } = await import("@/lib/midnight/deploy");
-      // stakePlayer1 requires a BigInt amount
-      const txHash = await callMidnightCircuit(api, "stake-pool", stakePoolAddress, "stakePlayer1", [BigInt(amount)]);
+      
+      let txHash = "";
+      if (isPrivate) {
+        toast.info("Generating ZK Proof for Private Stake... (This may take a moment)");
+        const dummyNonce = new Uint8Array(32);
+        crypto.getRandomValues(dummyNonce);
+        txHash = await callMidnightCircuit(api, contractName, contractAddress, "stakePrivate", [BigInt(amount), dummyNonce]);
+      } else {
+        toast.info("Generating ZK Proof for Public Stake... (This may take a moment)");
+        txHash = await callMidnightCircuit(api, contractName, contractAddress, "stakePlayer1", [BigInt(amount)]);
+      }
+
 
       // 2. If successful, record the match in the database
       const res = await fetch("/api/matches", {

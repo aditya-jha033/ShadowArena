@@ -13,8 +13,6 @@ export ledger winnerAddress: Maybe<Bytes<32>>;
 export ledger isDraw: Boolean;
 
 witness callerAddress(): Bytes<32>;
-witness cardValue(): Uint<0..11>;
-witness cardNonce(): Bytes<32>;
 
 constructor() {
   state = GameState.WAITING_P1;

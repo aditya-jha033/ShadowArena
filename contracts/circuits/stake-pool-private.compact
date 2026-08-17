@@ -18,8 +18,6 @@ export ledger p2Commitment: Maybe<Bytes<32>>;
 
 witness callerAddress(): Bytes<32>;
 witness matchIdWitness(): Bytes<32>;
-witness stakeAmount(): Uint<64>;
-witness stakeNonce(): Bytes<32>;
 
 constructor(max: Uint<64>) {
   state = PoolState.OPEN;
