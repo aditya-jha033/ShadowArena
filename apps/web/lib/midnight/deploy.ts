@@ -30,6 +30,7 @@ class FetchZkConfigProvider {
 }
 
 export async function deployMidnightContract(api: any, contractName: string, constructorArgs: any[] = []): Promise<{ address: string, txHash: string }> {
+  setNetworkId('preview');
   console.log(`Starting deployment for: ${contractName}`);
 
   // Mock deployment for stake-pool-private due to Testnet Custom error 170 (persistentCommit limit)
