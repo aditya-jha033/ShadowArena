@@ -33,16 +33,6 @@ export async function deployMidnightContract(api: any, contractName: string, con
   setNetworkId('preview');
   console.log(`Starting deployment for: ${contractName}`);
 
-  // Mock deployment for stake-pool-private due to Testnet Custom error 170 (persistentCommit limit)
-  if (contractName === 'stake-pool-private') {
-    console.warn("Mocking stake-pool-private deployment due to Testnet constraint (Error 170)");
-    await new Promise(r => setTimeout(r, 2000));
-    return {
-      address: '0200000000000000000000000000000000000000000000000000000000000000' + Math.floor(Math.random() * 1000).toString(),
-      txHash: '0x' + crypto.randomUUID().replace(/-/g, '') + crypto.randomUUID().replace(/-/g, '')
-    };
-  }
-
 
   // 1. Get Wallet Configuration
   const config = await api.getConfiguration();
