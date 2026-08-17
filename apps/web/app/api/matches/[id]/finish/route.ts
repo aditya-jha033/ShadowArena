@@ -1,4 +1,6 @@
 import { prisma } from "@/lib/prisma";
+import fs from "fs";
+import path from "path";
 
 export async function POST(
   req: Request,
@@ -16,10 +18,9 @@ export async function POST(
 
     if (match) {
       // Read moves to determine winner deterministically on the backend
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let moves: any = {};
       try {
-        const fs = require('fs');
-        const path = require('path');
         const movesFile = path.join(process.cwd(), '.moves.json');
         if (fs.existsSync(movesFile)) {
           moves = JSON.parse(fs.readFileSync(movesFile, 'utf8'));
@@ -45,7 +46,9 @@ export async function POST(
         }
 
         // Update both players natively!
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const p1 = match.players.find((p: any) => p.seat === 0);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const p2 = match.players.find((p: any) => p.seat === 1);
 
         if (p1) {
