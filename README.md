@@ -16,6 +16,13 @@
   <img src="https://img.shields.io/badge/Prisma-3982CE?style=for-the-badge&logo=Prisma&logoColor=white" alt="Prisma">
 </p>
 
+<p align="center">
+  <a href="https://github.com/aditya-jha033/ShadowArena/actions/workflows/build.yml"><img src="https://github.com/aditya-jha033/ShadowArena/actions/workflows/build.yml/badge.svg" alt="Build Status"></a>
+  <a href="https://github.com/aditya-jha033/ShadowArena/actions/workflows/test.yml"><img src="https://github.com/aditya-jha033/ShadowArena/actions/workflows/test.yml/badge.svg" alt="Test Status"></a>
+  <a href="https://github.com/aditya-jha033/ShadowArena/actions/workflows/lint.yml"><img src="https://github.com/aditya-jha033/ShadowArena/actions/workflows/lint.yml/badge.svg" alt="Lint Status"></a>
+  <a href="https://github.com/aditya-jha033/ShadowArena/actions/workflows/contracts.yml"><img src="https://github.com/aditya-jha033/ShadowArena/actions/workflows/contracts.yml/badge.svg" alt="Contracts Build"></a>
+</p>
+
 ---
 
 ## 🔗 Important Links
