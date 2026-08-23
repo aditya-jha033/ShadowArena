@@ -3,9 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Swords, Users, Clock, ChevronRight, Shield, Zap, Trophy, Dices } from "lucide-react";
+import { Swords, Users, Clock, ChevronRight, Shield, Zap, Trophy, Dices, Lock } from "lucide-react";
 import { StakeModal } from "@/components/game/StakeModal";
-import { Badge } from "@/components/ui/badge";
 
 interface OpenTable {
   id: string;
@@ -18,92 +17,81 @@ interface OpenTable {
   createdAt: string;
 }
 
+function timeAgo(dateStr: string) {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  return `${Math.floor(mins / 60)}h ago`;
+}
+
 export default function LobbyPage() {
   const [tables, setTables] = useState<OpenTable[]>([]);
   const [loading, setLoading] = useState(true);
   const [joiningId, setJoiningId] = useState<string | null>(null);
   const router = useRouter();
 
+  const loadTables = async () => {
+    try {
+      const res = await fetch("/api/matches/open", { cache: "no-store" });
+      if (res.ok) setTables(await res.json());
+    } catch (e) {
+      console.error("Failed to load open tables", e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const load = async () => {
-      try {
-        const res = await fetch("/api/matches/open", { cache: "no-store" });
-        if (res.ok) setTables(await res.json());
-      } catch (e) {
-        console.error("Failed to load open tables", e);
-      } finally {
-        setLoading(false);
-      }
-    };
-    load();
-    const interval = setInterval(load, 10_000);
+    loadTables();
+    const interval = setInterval(loadTables, 10_000);
     return () => clearInterval(interval);
   }, []);
 
   const handleJoinMatch = async (table: OpenTable) => {
     try {
       setJoiningId(table.id);
-      
       let amount = table.rawStakeAmount;
       if (table.isPrivateStake) {
         const input = window.prompt("This is a Private Wager. Enter the agreed DUST amount to match Player 1:");
         if (!input) return;
         amount = Number(input);
       }
-
-      if (!amount || isNaN(amount)) {
-        throw new Error("Invalid stake amount");
-      }
-
-      if (!table.stakeContract) {
-        throw new Error("Match missing stake contract address");
-      }
+      if (!amount || isNaN(amount)) throw new Error("Invalid stake amount");
+      if (!table.stakeContract) throw new Error("Match missing stake contract address");
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const w1am = (window as any).midnight?.["1am"];
       if (!w1am) throw new Error("1AM Wallet not installed");
-
       const api = await w1am.connect("preview");
       const { callMidnightCircuit } = await import("@/lib/midnight/deploy");
-
       const contractName = table.isPrivateStake ? "stake-pool-private" : "stake-pool";
       const circuitName = table.isPrivateStake ? "stakePrivate" : "stakePlayer2";
-
-      // For private stake, Player 2 needs a dummy nonce too
-      const args = table.isPrivateStake 
+      const args = table.isPrivateStake
         ? [BigInt(amount), crypto.getRandomValues(new Uint8Array(32))]
         : [BigInt(amount)];
 
       const withRetry = async <T,>(operation: () => Promise<T>, retries = 6, delay = 5000): Promise<T> => {
         for (let i = 0; i < retries; i++) {
-          try {
-            return await operation();
+          try { return await operation(); }
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          } catch (e: any) {
+          catch (e: any) {
             if (e.message?.includes("Wallet busy") && i < retries - 1) {
-              console.log(`Wallet busy, retrying in ${delay/1000}s...`);
               await new Promise(r => setTimeout(r, delay));
-            } else {
-              throw e;
-            }
+            } else throw e;
           }
         }
         throw new Error("Wallet remained busy for too long.");
       };
 
       await withRetry(() => callMidnightCircuit(api, contractName, table.stakeContract as string, circuitName, args));
-
-      // Update database so table disappears from open lobby
       const addresses = await api.getShieldedAddresses();
       await fetch(`/api/matches/${table.id}/join`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ walletAddress: addresses.shieldedCoinPublicKey })
       });
-
-      // Now navigate to table
       router.push(`/table/${table.id}`);
-
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       console.error(e);
@@ -114,145 +102,156 @@ export default function LobbyPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen pb-20 md:pb-8">
+    <div className="flex flex-col min-h-screen bg-[#070709]">
+
       {/* Header */}
-      <header className="px-6 h-16 flex items-center justify-between border-b border-white/[0.06] bg-black/20 backdrop-blur-sm sticky top-14 md:top-0 z-40">
+      <header className="px-6 h-16 flex items-center justify-between border-b border-yellow-500/10 bg-black/40 backdrop-blur-sm sticky top-0 z-40">
         <div className="flex items-center gap-3">
-          <Swords className="w-5 h-5 text-violet-400" />
-          <span className="font-bold tracking-tight text-xl">Lobby</span>
+          <div className="w-8 h-8 rounded-lg bg-yellow-500/15 border border-yellow-500/20 flex items-center justify-center">
+            <Swords className="w-4 h-4 text-yellow-400" />
+          </div>
+          <div>
+            <div className="font-black text-base text-white">Lobby</div>
+            <div className="text-[10px] text-white/30 font-mono">Find or Create Tables</div>
+          </div>
         </div>
-        <div className="flex items-center gap-2 text-xs font-mono text-emerald-400 border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 rounded-full">
+        <div className="flex items-center gap-2 text-[10px] font-mono text-emerald-400 border border-emerald-500/20 bg-emerald-500/5 px-3 py-1.5 rounded-full">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-          Preview Network · Live
+          Previewnet · Live
         </div>
       </header>
 
       <main className="flex-1 p-6 lg:p-10 max-w-6xl mx-auto w-full space-y-10">
 
-        {/* Hero CTA */}
-        <section className="relative rounded-2xl border border-violet-500/20 bg-violet-500/5 p-8 overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-violet-600/15 via-transparent to-transparent pointer-events-none" />
-          <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-            <div className="space-y-2">
-              <h1 className="text-3xl font-extrabold tracking-tight">Enter the Arena</h1>
-              <p className="text-muted-foreground max-w-md">
-                Create a private duel table, set your stake, and challenge any opponent.
-                Every move is ZK-proven on Midnight Network.
+        {/* ── HERO BANNER ── */}
+        <section className="relative rounded-2xl border border-yellow-500/20 overflow-hidden">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(212,175,55,0.12),transparent_60%)]" />
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(212,175,55,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(212,175,55,0.02)_1px,transparent_1px)] bg-[size:40px_40px]" />
+          <div className="relative z-10 p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <div className="space-y-3">
+              <div className="inline-flex items-center gap-2 text-[10px] font-mono text-yellow-400 uppercase tracking-widest border border-yellow-500/20 bg-yellow-500/10 px-3 py-1 rounded-full">
+                <Shield className="w-3 h-3" /> Zero-Knowledge Gaming Arena
+              </div>
+              <h1 className="text-3xl font-black tracking-tight text-white">Enter the Arena</h1>
+              <p className="text-white/40 max-w-md text-sm leading-relaxed">
+                Create a private duel, set your stake, and challenge any opponent. Every move is ZK-proven — your cards never touch the chain.
               </p>
-              <div className="flex items-center gap-4 pt-1">
-                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <Shield className="w-3.5 h-3.5 text-violet-400" /> ZK-Verified
-                </div>
-                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <Zap className="w-3.5 h-3.5 text-amber-400" /> Dust-Free
-                </div>
-                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <Trophy className="w-3.5 h-3.5 text-teal-400" /> Instant Payout
-                </div>
+              <div className="flex items-center gap-5 pt-1">
+                {[
+                  { icon: Shield, label: "ZK-Verified", color: "text-yellow-400" },
+                  { icon: Zap,    label: "Gas-Free",    color: "text-emerald-400" },
+                  { icon: Trophy, label: "Trustless Payout", color: "text-amber-400" },
+                ].map(({ icon: Icon, label, color }) => (
+                  <div key={label} className="flex items-center gap-1.5 text-xs text-white/40">
+                    <Icon className={`w-3.5 h-3.5 ${color}`} />
+                    {label}
+                  </div>
+                ))}
               </div>
             </div>
             <div className="shrink-0">
-              <StakeModal gameMode="card_duel" onMatchCreated={() => {
-                // Refresh tables after creating a new one
-                fetch("/api/matches/open").then(r => r.json()).then(setTables);
-              }} />
+              <StakeModal gameMode="card_duel" onMatchCreated={loadTables} />
             </div>
           </div>
         </section>
 
-        {/* Game mode cards */}
+        {/* ── GAME MODES ── */}
         <section className="space-y-4">
-          <h2 className="text-lg font-semibold tracking-tight">Choose Game Mode</h2>
-          <div className="grid md:grid-cols-2 gap-5">
-            <div className="group relative rounded-2xl border border-white/[0.08] bg-white/[0.02] hover:border-violet-500/30 hover:bg-violet-500/[0.04] transition-all duration-300 p-6 flex gap-5">
-              <div className="w-12 h-12 rounded-xl bg-violet-600/15 border border-violet-500/20 flex items-center justify-center shrink-0">
-                <Swords className="w-6 h-6 text-violet-400" />
+          <div className="flex items-center gap-3">
+            <h2 className="text-lg font-black text-white">Game Modes</h2>
+            <div className="flex-1 h-px bg-yellow-500/10" />
+          </div>
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="group relative rounded-2xl border border-yellow-500/20 bg-gradient-to-br from-yellow-500/5 to-transparent hover:border-yellow-500/40 hover:shadow-[0_0_30px_rgba(212,175,55,0.08)] transition-all duration-300 p-5 flex gap-4 cursor-pointer">
+              <div className="w-12 h-12 rounded-xl bg-yellow-500/15 border border-yellow-500/20 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                <Swords className="w-6 h-6 text-yellow-400" />
               </div>
-              <div className="flex-1 space-y-1.5">
+              <div className="flex-1 space-y-1">
                 <div className="flex items-center gap-2">
-                  <h3 className="font-semibold">High Card Duel</h3>
-                  <Badge className="text-[10px] bg-emerald-500/15 text-emerald-400 border-emerald-500/20">Live</Badge>
+                  <h3 className="font-black text-white">High Card Duel</h3>
+                  <span className="text-[10px] font-mono font-bold text-emerald-400 border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 rounded-full">● LIVE</span>
                 </div>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  Commit a hidden card. Highest card wins the entire pot. Shuffle is proven fair by ZK circuit.
-                </p>
-                <div className="flex items-center gap-3 pt-2 text-xs text-muted-foreground font-mono">
-                  <span>Min: 100 tDUST</span>
-                  <span>·</span>
-                  <span>~2 min/round</span>
+                <p className="text-xs text-white/40 leading-relaxed">Commit a hidden card. Highest wins the pot. ZK-shuffled deck.</p>
+                <div className="flex items-center gap-3 pt-1 text-[10px] text-white/25 font-mono">
+                  <span>Min: 100 tDUST</span><span>·</span><span>~2 min/round</span>
                 </div>
               </div>
-              <ChevronRight className="w-4 h-4 text-muted-foreground/40 group-hover:text-violet-400 group-hover:translate-x-0.5 transition-all mt-1 shrink-0" />
+              <ChevronRight className="w-4 h-4 text-yellow-500/30 group-hover:text-yellow-400 group-hover:translate-x-0.5 transition-all mt-1 shrink-0" />
             </div>
 
-            <div className="relative rounded-2xl border border-white/[0.06] bg-white/[0.01] p-6 flex gap-5 opacity-60 cursor-not-allowed">
-              <div className="w-12 h-12 rounded-xl bg-teal-600/10 border border-teal-500/15 flex items-center justify-center shrink-0">
-                <Dices className="w-6 h-6 text-teal-400/50" />
+            <div className="relative rounded-2xl border border-white/[0.05] bg-white/[0.01] p-5 flex gap-4 opacity-50 cursor-not-allowed">
+              <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
+                <Dices className="w-6 h-6 text-white/20" />
               </div>
-              <div className="flex-1 space-y-1.5">
+              <div className="flex-1 space-y-1">
                 <div className="flex items-center gap-2">
-                  <h3 className="font-semibold">Dice Duel</h3>
-                  <Badge variant="outline" className="text-[10px] text-amber-400 border-amber-500/30">Soon</Badge>
+                  <h3 className="font-black text-white/40">Dice Duel</h3>
+                  <span className="text-[10px] font-mono text-white/30 border border-white/10 px-2 py-0.5 rounded-full">SOON</span>
                 </div>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  Predict the hidden roll. Lock in your wager privately. Provably fair on-chain randomness.
-                </p>
-                <div className="text-xs text-muted-foreground font-mono pt-2">Coming Q3 2026</div>
+                <p className="text-xs text-white/25 leading-relaxed">Provably fair on-chain randomness. Coming Q3 2026.</p>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Live open tables from DB */}
+        {/* ── OPEN TABLES ── */}
         <section className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold tracking-tight">Open Tables</h2>
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <Users className="w-3.5 h-3.5" />
+          <div className="flex items-center gap-3">
+            <h2 className="text-lg font-black text-white">Open Tables</h2>
+            <div className="flex-1 h-px bg-yellow-500/10" />
+            <div className="flex items-center gap-1.5 text-[10px] text-white/30 font-mono border border-white/10 px-3 py-1 rounded-full">
+              <Users className="w-3 h-3" />
               {loading ? "—" : tables.length} waiting
             </div>
           </div>
 
-          <div className="rounded-2xl border border-white/[0.07] overflow-hidden divide-y divide-white/[0.06]">
+          <div className="rounded-2xl border border-yellow-500/10 overflow-hidden bg-black/30 divide-y divide-yellow-500/5">
             {loading && (
-              <div className="py-12 text-center text-muted-foreground text-sm animate-pulse">
-                Loading open tables...
+              <div className="py-12 text-center">
+                <div className="inline-block w-6 h-6 border-2 border-yellow-500/30 border-t-yellow-500 rounded-full animate-spin mb-3" />
+                <p className="text-white/30 text-sm font-mono">Scanning open tables...</p>
               </div>
             )}
 
             {!loading && tables.length === 0 && (
-              <div className="py-16 text-center text-muted-foreground text-sm">
-                No open tables right now. Be the first to create one!
+              <div className="py-16 text-center">
+                <Lock className="w-10 h-10 text-white/10 mx-auto mb-3" />
+                <p className="text-white/30 text-sm">No open tables right now.</p>
+                <p className="text-white/20 text-xs mt-1">Be the first to deploy a match!</p>
               </div>
             )}
 
             {!loading && tables.map((table) => (
-              <div key={table.id} className="flex items-center justify-between px-6 py-4 hover:bg-white/[0.03] transition-colors">
+              <div key={table.id} className="flex items-center justify-between px-5 py-4 hover:bg-yellow-500/[0.03] transition-colors group">
                 <div className="flex items-center gap-4">
-                  <div className="w-9 h-9 rounded-lg bg-violet-600/15 border border-violet-500/15 flex items-center justify-center">
-                    <Swords className="w-4 h-4 text-violet-400" />
+                  <div className="w-10 h-10 rounded-xl bg-yellow-500/10 border border-yellow-500/15 flex items-center justify-center group-hover:scale-105 transition-transform">
+                    <Swords className="w-4 h-4 text-yellow-400" />
                   </div>
                   <div>
-                    <div className="text-sm font-medium">{table.game}</div>
-                    <div className="text-xs text-muted-foreground font-mono">Host: {table.hostAddress}</div>
+                    <div className="text-sm font-bold text-white">{table.game}</div>
+                    <div className="text-xs text-white/25 font-mono">
+                      {table.hostAddress.slice(0, 10)}...{table.hostAddress.slice(-6)} · {timeAgo(table.createdAt)}
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-6">
+                <div className="flex items-center gap-5">
                   <div className="text-right hidden sm:block">
-                    <div className="text-sm font-mono font-bold text-amber-400">
-                      {table.isPrivateStake ? "🔒 Hidden" : table.stake}
+                    <div className="text-sm font-black font-mono text-yellow-400">
+                      {table.isPrivateStake ? (
+                        <span className="flex items-center gap-1"><Lock className="w-3 h-3" /> Hidden</span>
+                      ) : table.stake}
                     </div>
-                    <div className="text-xs text-muted-foreground flex items-center gap-1 justify-end">
-                      <Clock className="w-3 h-3" /> Waiting for opponent
+                    <div className="text-[10px] text-white/25 flex items-center gap-1">
+                      <Clock className="w-2.5 h-2.5" /> Awaiting opponent
                     </div>
                   </div>
-                  <Button 
-                    size="sm" 
-                    className="bg-violet-600 hover:bg-violet-500 text-white text-xs px-4"
+                  <Button
+                    size="sm"
                     onClick={() => handleJoinMatch(table)}
                     disabled={joiningId === table.id}
+                    className="bg-gradient-to-r from-yellow-600 to-amber-500 hover:from-yellow-500 hover:to-amber-400 text-black font-black text-xs px-5 shadow-[0_0_15px_rgba(212,175,55,0.2)] hover:shadow-[0_0_25px_rgba(212,175,55,0.4)] transition-all rounded-lg"
                   >
-                    {joiningId === table.id ? "Staking..." : "Join"}
+                    {joiningId === table.id ? "Staking..." : "Join Table"}
                   </Button>
                 </div>
               </div>
