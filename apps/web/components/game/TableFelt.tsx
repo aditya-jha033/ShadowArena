@@ -8,13 +8,9 @@ import { toast } from "sonner";
 import { useWalletStore } from "@/lib/midnight/wallet";
 
 export function TableFelt({ 
-  players = 4,
-  tableSkin = "from-secondary/5",
   cardBackSkin,
   contractAddress,
 }: { 
-  players?: number;
-  tableSkin?: string;
   cardBackSkin?: string;
   contractAddress?: string;
 }) {
@@ -26,7 +22,6 @@ export function TableFelt({
   const [selectedCard, setSelectedCard] = useState<number | null>(null);
 
   const myHand = [2, 5, 8, 10]; // Example hand for MVP
-  const opponentsCount = players - 1;
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 

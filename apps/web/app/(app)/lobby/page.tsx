@@ -41,8 +41,8 @@ export default function LobbyPage() {
       setLoading(false);
     }
   };
-
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadTables();
     const interval = setInterval(loadTables, 10_000);
     return () => clearInterval(interval);

@@ -9,6 +9,7 @@ export function WalletConnectButton() {
   const { isConnected, isConnecting, walletAddress, connect, disconnect } = useWalletStore();
   // Fix hydration mismatch: don't render connected state on server
   const [mounted, setMounted] = useState(false);
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { setMounted(true); }, []);
 
   if (!mounted) {

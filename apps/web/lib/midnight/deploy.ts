@@ -34,8 +34,7 @@ export async function deployMidnightContract(api: any, contractName: string, con
   console.log(`Starting deployment for: ${contractName}`);
 
 
-  // 1. Get Wallet Configuration
-  const config = await api.getConfiguration();
+  // 1. Get Wallet Configuration (omitted)
 
   // 2. Setup Providers
   const zkConfigProvider = new FetchZkConfigProvider(contractName);
@@ -76,7 +75,6 @@ export async function deployMidnightContract(api: any, contractName: string, con
   // 6. Create the CompiledContract with witnesses bound
   const compiledContractBase = CompiledContract.make(contractName, contractModule.Contract);
   // @ts-expect-error: SDK witnesses type is overly strict for dynamic witness pattern
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const compiledContract: any = CompiledContract.withWitnesses(compiledContractBase, witnesses);
 
   // 7. Build the unproven deploy transaction (this gives us the contract address immediately)
@@ -119,7 +117,6 @@ export async function callMidnightCircuit(
 ): Promise<string> {
   setNetworkId('preview');
   
-  const config = await api.getConfiguration();
   const zkConfigProvider = new FetchZkConfigProvider(contractName);
   const provingProvider = await api.getProvingProvider(zkConfigProvider);
   const proofProvider = createProofProvider(provingProvider);
@@ -135,8 +132,8 @@ export async function callMidnightCircuit(
     }
   };
 
-  const indexerUrl = config?.indexer || 'https://indexer.preview.midnight.network/api/v4/graphql';
-  const indexerWsUrl = config?.indexerWS || 'wss://indexer.preview.midnight.network/api/v4/graphql/ws';
+  const indexerUrl = 'https://indexer.preview.midnight.network/api/v4/graphql';
+  const indexerWsUrl = 'wss://indexer.preview.midnight.network/api/v4/graphql/ws';
   const publicDataProvider = indexerPublicDataProvider(indexerUrl, indexerWsUrl);
 
   let contractModule: any;
@@ -156,7 +153,6 @@ export async function callMidnightCircuit(
   
   const compiledContractBase = CompiledContract.make(contractName, contractModule.Contract);
   // @ts-expect-error: SDK witnesses type is overly strict for dynamic witness pattern
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const compiledContract: any = CompiledContract.withWitnesses(compiledContractBase, witnesses);
 
   // We need to fetch the existing state

@@ -24,7 +24,7 @@ export class GameContractAPI {
   public address = "0xMidnightMockAddress123";
 
   // Mock deploying a new table (Player 1 joins immediately)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   static async deployNewTable(walletProvider: any, commitment: Uint8Array): Promise<GameContractAPI> {
     console.log("Mocking contract deployment to preview network...");
     // await deployContract(providers, { compiledContract, privateStateId, initialPrivateState })
@@ -33,7 +33,7 @@ export class GameContractAPI {
   }
 
   // Mock finding an existing table
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   static async joinExistingTable(walletProvider: any, address: string): Promise<GameContractAPI> {
     console.log(`Mocking connecting to contract at ${address}...`);
     // await findDeployedContract(providers, { contractAddress: address, compiledContract... })

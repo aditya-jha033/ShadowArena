@@ -63,16 +63,16 @@ function AdminPinGate({ children }: { children: React.ReactNode }) {
         // eslint-disable-next-line react-hooks/set-state-in-effect
         setUnlocked(true);
       }
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+       
       setChecking(false);
       return;
     }
     const session = sessionStorage.getItem("shadowarena:admin_auth");
     if (session === adminPin) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+       
       setUnlocked(true);
     }
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+     
     setChecking(false);
   }, []);
 
@@ -152,7 +152,7 @@ export default function DeployPage() {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       if (saved) setDeployedAddresses(JSON.parse(saved));
     } catch {}
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+     
     setHydrated(true);
   }, []);
 
