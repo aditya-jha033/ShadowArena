@@ -51,69 +51,72 @@
 }
 
 :root {
-  /* Base - Near Black, Cool Undertone */
-  --background: hsl(240 10% 4%);
-  --foreground: hsl(0 0% 96%);
+  /* Base - Jet Black */
+  --background: hsl(0 0% 5%);
+  --foreground: hsl(0 0% 98%);
 
-  /* Brand */
-  --primary: hsl(262 83% 63%);
-  --primary-foreground: hsl(0 0% 100%);
-  --secondary: hsl(173 80% 45%);
-  --secondary-foreground: hsl(0 0% 4%);
+  /* Brand - Vegas Gold */
+  --primary: hsl(46 65% 52%);
+  --primary-foreground: hsl(0 0% 5%);
+  
+  /* Secondary - Emerald Green Felt */
+  --secondary: hsl(160 84% 15%);
+  --secondary-foreground: hsl(0 0% 98%);
 
   /* Stakes / money */
   --accent-gold: hsl(43 96% 56%);
 
   /* Status */
-  --success: hsl(142 70% 45%);
-  --destructive: hsl(0 72% 55%);
+  --success: hsl(160 84% 39%);
+  --destructive: hsl(348 83% 47%);
   --warning: hsl(38 92% 50%);
 
   /* Surfaces */
-  --card: hsl(240 8% 8%);
-  --card-foreground: hsl(0 0% 96%);
-  --border: hsl(240 6% 16%);
-  --muted: hsl(240 6% 14%);
-  --muted-foreground: hsl(240 5% 64%);
+  --card: hsl(0 0% 8%);
+  --card-foreground: hsl(0 0% 98%);
+  --border: hsl(46 65% 20%); /* Gold-tinted border */
+  --muted: hsl(0 0% 12%);
+  --muted-foreground: hsl(0 0% 64%);
   
-  --popover: hsl(240 8% 8%);
-  --popover-foreground: hsl(0 0% 96%);
-  --accent: hsl(240 6% 14%);
-  --accent-foreground: hsl(0 0% 96%);
-  --input: hsl(240 6% 16%);
-  --ring: hsl(262 83% 63%);
+  --popover: hsl(0 0% 8%);
+  --popover-foreground: hsl(0 0% 98%);
+  --accent: hsl(0 0% 12%);
+  --accent-foreground: hsl(46 65% 52%);
+  --input: hsl(0 0% 16%);
+  --ring: hsl(46 65% 52%);
 
   --radius: 0.75rem;
 }
 
 .dark {
   /* We use the same dark theme for both since the app is dark-first */
-  --background: hsl(240 10% 4%);
-  --foreground: hsl(0 0% 96%);
+  --background: hsl(0 0% 5%);
+  --foreground: hsl(0 0% 98%);
 
-  --primary: hsl(262 83% 63%);
-  --primary-foreground: hsl(0 0% 100%);
-  --secondary: hsl(173 80% 45%);
-  --secondary-foreground: hsl(0 0% 4%);
+  --primary: hsl(46 65% 52%);
+  --primary-foreground: hsl(0 0% 5%);
+  
+  --secondary: hsl(160 84% 15%);
+  --secondary-foreground: hsl(0 0% 98%);
 
   --accent-gold: hsl(43 96% 56%);
 
-  --success: hsl(142 70% 45%);
-  --destructive: hsl(0 72% 55%);
+  --success: hsl(160 84% 39%);
+  --destructive: hsl(348 83% 47%);
   --warning: hsl(38 92% 50%);
 
-  --card: hsl(240 8% 8%);
-  --card-foreground: hsl(0 0% 96%);
-  --border: hsl(240 6% 16%);
-  --muted: hsl(240 6% 14%);
-  --muted-foreground: hsl(240 5% 64%);
+  --card: hsl(0 0% 8%);
+  --card-foreground: hsl(0 0% 98%);
+  --border: hsl(46 65% 20%);
+  --muted: hsl(0 0% 12%);
+  --muted-foreground: hsl(0 0% 64%);
   
-  --popover: hsl(240 8% 8%);
-  --popover-foreground: hsl(0 0% 96%);
-  --accent: hsl(240 6% 14%);
-  --accent-foreground: hsl(0 0% 96%);
-  --input: hsl(240 6% 16%);
-  --ring: hsl(262 83% 63%);
+  --popover: hsl(0 0% 8%);
+  --popover-foreground: hsl(0 0% 98%);
+  --accent: hsl(0 0% 12%);
+  --accent-foreground: hsl(46 65% 52%);
+  --input: hsl(0 0% 16%);
+  --ring: hsl(46 65% 52%);
 }
 
 @layer base {

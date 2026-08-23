@@ -233,87 +233,98 @@ export function TableFelt({
   };
 
   return (
-    <div className="flex flex-col flex-1 items-center justify-between p-8 bg-background relative overflow-hidden">
-      {/* Table Background Texture with Equipped Skin */}
-      <div className={`absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] ${tableSkin} via-background to-background pointer-events-none`} />
+    <div className="relative w-full h-[calc(100vh-8rem)] flex items-center justify-center p-4 overflow-hidden bg-background">
+      
+      {/* The Poker Table Outer Edge (Wood/Leather) */}
+      <div className="relative w-full max-w-5xl aspect-[16/10] rounded-[200px] border-[16px] border-[#2A1610] bg-black shadow-[0_30px_60px_rgba(0,0,0,0.8),inset_0_10px_20px_rgba(0,0,0,0.5)] flex items-center justify-center p-6">
+        
+        {/* The Table Felt (Emerald Green) */}
+        <div className="relative w-full h-full rounded-[180px] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-emerald-800 to-emerald-950 shadow-[inset_0_0_80px_rgba(0,0,0,0.9)] overflow-hidden border border-emerald-700/30">
+          
+          {/* Subtle felt texture/pattern */}
+          <div className="absolute inset-0 opacity-[0.03] bg-[url('https://www.transparenttextures.com/patterns/black-felt.png')]" />
 
-      {/* Opponents Area - Scaled for multiplayer */}
-      <div className="flex w-full justify-around items-center px-4 lg:px-24 z-10 pt-4">
-        {Array.from({ length: opponentsCount }).map((_, i) => (
-          <div key={i} className="flex flex-col items-center space-y-2">
-            <div className="text-xs font-medium text-muted-foreground uppercase tracking-widest">
-              Seat {i + 2}
+          {/* Opponent Area (Top) */}
+          <div className="absolute top-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 z-20">
+            <div className="px-6 py-2 rounded-full bg-black/60 border border-white/10 backdrop-blur-sm text-sm text-white/70 font-medium">
+              Opponent
             </div>
-            <div className="flex -space-x-12 scale-75">
-              <PlayingCard isHidden={!isRevealed} value={isRevealed && opponentCard !== null ? opponentCard : undefined} skin={cardBackSkin} />
-            </div>
-            {hasCommitted && !isRevealed && (
-              <div className="text-xs text-primary font-mono bg-primary/10 px-2 py-1 rounded-full border border-primary/20">
-                Committed ✓
+            {hasCommitted ? (
+              <div className="scale-90">
+                <PlayingCard 
+                  isHidden={!isRevealed} 
+                  value={opponentCard ?? undefined} 
+                  skin={cardBackSkin} 
+                />
               </div>
-            )}
-            {isRevealed && opponentCard !== null && (
-              <div className={`text-xs font-bold font-mono px-2 py-1 ${(selectedCard && selectedCard < opponentCard) ? "text-amber-400" : "text-muted-foreground"}`}>
-                {selectedCard && selectedCard < opponentCard ? `WINNER (${opponentCard})` : `LOSER (${opponentCard})`}
+            ) : (
+              <div className="w-24 h-36 rounded-xl border-2 border-dashed border-white/20 flex items-center justify-center bg-black/20 text-white/30 text-sm">
+                Waiting...
               </div>
             )}
           </div>
-        ))}
-      </div>
 
-      {/* Center Table (Pot / Action) */}
-      <div className="flex flex-col items-center justify-center z-10 my-12">
-        <div className="w-64 h-64 rounded-full border border-border/30 bg-card/20 flex flex-col items-center justify-center backdrop-blur-sm relative">
-          <div className="absolute inset-0 rounded-full border border-primary/10 animate-ping opacity-20 pointer-events-none" />
-          {hasCommitted ? (
-            isRevealed && opponentCard !== null ? (
-              <div className="text-center space-y-4 relative z-10">
-                <div className={`text-xl font-bold ${(selectedCard && selectedCard > opponentCard) ? "text-amber-400" : "text-red-400"}`}>
-                  {(selectedCard && selectedCard > opponentCard) ? "YOU WIN" : "YOU LOSE"}
-                </div>
-                <div className="text-sm text-muted-foreground">Pot has been settled on-chain.</div>
+          {/* Center Table / Stakes / Pot */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-6 z-30">
+            {/* The Pot */}
+            <div className="relative flex items-center justify-center w-32 h-32 rounded-full border border-yellow-500/20 bg-black/40 shadow-[0_0_30px_rgba(212,175,55,0.15)] backdrop-blur-md">
+              <div className="absolute inset-0 rounded-full border border-yellow-500/10 animate-[spin_10s_linear_infinite]" />
+              <div className="flex flex-col items-center">
+                <span className="text-xs text-yellow-500/70 font-mono tracking-widest uppercase mb-1">Total Pot</span>
+                <span className="text-2xl font-black text-yellow-500 tracking-tighter">1,000</span>
+                <span className="text-[10px] text-yellow-500/50 uppercase mt-1">tDUST</span>
               </div>
-            ) : (
-              <div className="text-center space-y-4 relative z-10">
-                <div className="text-lg font-medium text-secondary">Commitment Verified ✓</div>
-                <div className="text-sm text-muted-foreground">Waiting for opponent...</div>
-                <Button 
-                  onClick={handleReveal} 
-                  disabled={isSubmitting}
-                  variant="outline"
-                  className="mt-4 border-violet-500/50 hover:bg-violet-500/10"
-                >
-                  {isSubmitting ? "Revealing..." : "Reveal Cards"}
-                </Button>
-              </div>
-            )
-          ) : (
-            <div className="text-center space-y-4 relative z-10">
-              <div className="text-lg font-medium text-muted-foreground">Select a card to play</div>
-              <Button 
-                onClick={handleCommit} 
-                disabled={selectedCard === null || isSubmitting}
-                className="bg-primary hover:bg-primary/90 text-primary-foreground min-w-[140px]"
-              >
-                {isSubmitting ? "Generating Proof..." : "Commit Move"}
-              </Button>
             </div>
-          )}
-        </div>
-      </div>
 
-      {/* Player Area (Hand Tray) */}
-      <div className="flex flex-col items-center space-y-4 z-10">
-        <div className="text-sm font-medium text-muted-foreground uppercase tracking-widest">Your Hand</div>
-        <div className="flex gap-4">
-          {myHand.map((val, idx) => (
-            <PlayingCard
-              key={idx}
-              value={val}
-              isSelected={selectedCard === val}
-              onClick={() => !hasCommitted && setSelectedCard(val)}
-            />
-          ))}
+            {/* Status / Action Button */}
+            {!hasCommitted ? (
+              <Button 
+                size="lg" 
+                onClick={handleCommit} 
+                disabled={isSubmitting || selectedCard === null}
+                className="rounded-full px-8 bg-yellow-600 hover:bg-yellow-500 text-black font-bold shadow-[0_0_20px_rgba(202,138,4,0.4)] transition-all disabled:opacity-50"
+              >
+                {isSubmitting ? "Generating Proof..." : "Lock in Bet"}
+              </Button>
+            ) : !isRevealed ? (
+              <Button 
+                size="lg"
+                onClick={handleReveal}
+                disabled={isSubmitting}
+                className="rounded-full px-8 bg-emerald-600 hover:bg-emerald-500 text-white font-bold shadow-[0_0_20px_rgba(5,150,105,0.4)] transition-all"
+              >
+                {isSubmitting ? "Verifying ZK Proof..." : "Reveal & Settle"}
+              </Button>
+            ) : (
+              <div className="px-6 py-2 rounded-full bg-black/80 border border-yellow-500/50 text-yellow-500 font-bold tracking-widest uppercase">
+                Match Settled
+              </div>
+            )}
+          </div>
+
+          {/* Player Area (Bottom) */}
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-6 z-40">
+            
+            {/* Player Cards */}
+            <div className="flex items-center justify-center gap-3 perspective-[1000px]">
+              {myHand.map((cardValue) => (
+                <div key={cardValue} className={!hasCommitted ? "cursor-pointer" : "opacity-50 pointer-events-none"}>
+                  <PlayingCard
+                    value={cardValue}
+                    isSelected={selectedCard === cardValue}
+                    onClick={() => !hasCommitted && setSelectedCard(cardValue)}
+                  />
+                </div>
+              ))}
+            </div>
+
+            {/* Player Info Tag */}
+            <div className="px-6 py-2 rounded-full bg-black/60 border border-white/10 backdrop-blur-sm text-sm text-white/90 font-bold flex items-center gap-2 shadow-lg">
+              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              You ({walletAddress ? `${walletAddress.slice(0,6)}...${walletAddress.slice(-4)}` : 'Connecting...'})
+            </div>
+            
+          </div>
         </div>
       </div>
     </div>
