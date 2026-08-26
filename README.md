@@ -27,9 +27,10 @@
 
 ## 🔗 Important Links
 
-- **🎥 YouTube Demo Video:** [Watch the Demo](https://youtu.be/DHhQHuXcIq0)
-- **🌐 Live Vercel Deployment:** [Shadow Arena Web](https://shadow-arena-preview.vercel.app/)
-- **🐦 X (Twitter) Profile:** [@shadowarenaweb3](https://x.com/shadowarenaweb3)
+- **Live Preprod Demo:** [https://shadow-arena-preview.vercel.app/](https://shadow-arena-preview.vercel.app/) _(Live Shadow Arena Application on Preprod)_
+- **GitHub Repository:** [https://github.com/aditya-jha033/ShadowArena](https://github.com/aditya-jha033/ShadowArena)
+- **Product X (Twitter):** [@shadowarenaweb3](https://x.com/shadowarenaweb3) _(Official Shadow Arena X Profile)_
+- **Demo Video:** [Watch the Shadow Arena MVP Demo](https://youtu.be/DHhQHuXcIq0)
 
 ### 🌐 Midnight Preview Network Explorer Links
 
@@ -80,18 +81,18 @@ Shadow Arena strictly adheres to Midnight's data protection programming model:
 <p align="center">
   <strong>Landing Page:</strong><br>
   <img src="assets/Project/landing-page.png" width="800"><br><br>
+  <strong>Player Dashboard:</strong><br>
+  <img src="assets/Project/dashboard.png" width="800"><br><br>
+  <strong>Player Profile:</strong><br>
+  <img src="assets/Project/profile.png" width="800"><br><br>
   <strong>Lobby:</strong><br>
   <img src="assets/Project/lobby.png" width="800"><br><br>
-  <strong>Enter Arena:</strong><br>
-  <img src="assets/Project/enter-arena.png" width="800"><br><br>
-  <strong>Match Deployment:</strong><br>
-  <img src="assets/Project/match-deploy.png" width="800"><br><br>
+  <strong>Enter Game:</strong><br>
+  <img src="assets/Project/enter-game.png" width="800"><br><br>
+  <strong>Game View:</strong><br>
+  <img src="assets/Project/game-view.png" width="800"><br><br>
   <strong>Victory View:</strong><br>
-  <img src="assets/Project/won-view.png" width="800"><br><br>
-  <strong>Defeat View:</strong><br>
-  <img src="assets/Project/lost-view.png" width="800"><br><br>
-  <strong>Player Dashboard:</strong><br>
-  <img src="assets/Project/dashboard.png" width="800">
+  <img src="assets/Project/won-view.png" width="800">
 </p>
 
 ---
