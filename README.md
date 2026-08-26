@@ -91,6 +91,8 @@ Shadow Arena strictly adheres to Midnight's data protection programming model:
   <img src="assets/Project/enter-game.png" width="800"><br><br>
   <strong>Game View:</strong><br>
   <img src="assets/Project/game-view.png" width="800"><br><br>
+  <strong>Game Play:</strong><br>
+  <img src="assets/Project/game-play.png" width="800"><br><br>
   <strong>Victory View:</strong><br>
   <img src="assets/Project/won-view.png" width="800">
 </p>
