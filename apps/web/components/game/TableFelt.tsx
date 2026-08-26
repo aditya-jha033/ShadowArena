@@ -233,15 +233,15 @@ export function TableFelt({
       {/* The Poker Table Outer Edge (Wood/Leather) */}
       <div className="relative w-full max-w-5xl h-full max-h-[800px] min-h-[600px] rounded-[100px] md:rounded-[200px] border-[12px] md:border-[16px] border-[#2A1610] bg-black shadow-[0_30px_60px_rgba(0,0,0,0.8),inset_0_10px_20px_rgba(0,0,0,0.5)] flex items-center justify-center p-3 md:p-6">
         
-        {/* The Table Felt (Emerald Green) */}
-        <div className="relative w-full h-full rounded-[90px] md:rounded-[180px] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-emerald-800 to-emerald-950 shadow-[inset_0_0_80px_rgba(0,0,0,0.9)] overflow-hidden border border-emerald-700/30">
+        {/* The Table Felt (Emerald Green) — now a flex column grid, no absolute children */}
+        <div className="relative w-full h-full rounded-[90px] md:rounded-[180px] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-emerald-800 to-emerald-950 shadow-[inset_0_0_80px_rgba(0,0,0,0.9)] border border-emerald-700/30 flex flex-col items-center justify-between py-8 px-4 overflow-hidden">
           
-          {/* Subtle felt texture/pattern */}
+          {/* Subtle felt texture */}
           <div className="absolute inset-0 opacity-[0.03] bg-[url('https://www.transparenttextures.com/patterns/black-felt.png')]" />
 
-          {/* Opponent Area (Top) */}
-          <div className="absolute top-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 z-20">
-            <div className="px-6 py-2 rounded-full bg-black/60 border border-white/10 backdrop-blur-sm text-sm text-white/70 font-medium">
+          {/* ── ROW 1: Opponent Area ── */}
+          <div className="relative z-20 flex flex-col items-center gap-3">
+            <div className="px-6 py-1.5 rounded-full bg-black/60 border border-white/10 backdrop-blur-sm text-sm text-white/70 font-medium">
               Opponent
             </div>
             {hasCommitted ? (
@@ -253,16 +253,15 @@ export function TableFelt({
                 />
               </div>
             ) : (
-              <div className="w-24 h-36 rounded-xl border-2 border-dashed border-white/20 flex items-center justify-center bg-black/20 text-white/30 text-sm">
+              <div className="w-20 h-28 md:w-24 md:h-36 rounded-xl border-2 border-dashed border-white/20 flex items-center justify-center bg-black/20 text-white/30 text-sm">
                 Waiting...
               </div>
             )}
           </div>
 
-          {/* Center Table / Stakes / Pot */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-6 z-30 pointer-events-none">
-            {/* The Pot */}
-            <div className="relative flex items-center justify-center w-32 h-32 rounded-full border border-yellow-500/20 bg-black/40 shadow-[0_0_30px_rgba(212,175,55,0.15)] backdrop-blur-md">
+          {/* ── ROW 2: Center Pot (middle row, doesn't push other rows) ── */}
+          <div className="relative z-30 flex flex-col items-center">
+            <div className="relative flex items-center justify-center w-28 h-28 md:w-32 md:h-32 rounded-full border border-yellow-500/20 bg-black/40 shadow-[0_0_30px_rgba(212,175,55,0.15)] backdrop-blur-md">
               <div className="absolute inset-0 rounded-full border border-yellow-500/10 animate-[spin_10s_linear_infinite]" />
               <div className="flex flex-col items-center">
                 <span className="text-xs text-yellow-500/70 font-mono tracking-widest uppercase mb-1">Total Pot</span>
@@ -272,38 +271,38 @@ export function TableFelt({
             </div>
           </div>
 
-          {/* Player Area (Bottom) */}
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 z-40 w-full max-w-lg">
+          {/* ── ROW 3: Player Area ── */}
+          <div className="relative z-40 flex flex-col items-center gap-3 w-full">
             
-            {/* Status / Action Button */}
-            <div className="h-12 flex items-center justify-center">
+            {/* Action Button — always fully visible in its own row */}
+            <div className="flex items-center justify-center">
               {!hasCommitted ? (
                 <Button 
                   size="lg" 
                   onClick={handleCommit} 
                   disabled={isSubmitting || selectedCard === null}
-                  className="rounded-full px-8 bg-yellow-600 hover:bg-yellow-500 text-black font-bold shadow-[0_0_20px_rgba(202,138,4,0.4)] transition-all disabled:opacity-50"
+                  className="rounded-full px-10 py-3 bg-gradient-to-r from-yellow-600 to-amber-500 hover:from-yellow-500 hover:to-amber-400 text-black font-black text-base shadow-[0_0_30px_rgba(212,175,55,0.5)] hover:shadow-[0_0_40px_rgba(212,175,55,0.7)] transition-all disabled:opacity-40 disabled:shadow-none border-2 border-yellow-400/50"
                 >
-                  {isSubmitting ? "Generating Proof..." : "Lock in Bet"}
+                  {isSubmitting ? "⚙️ Generating Proof..." : "🔒 Lock in Bet"}
                 </Button>
               ) : !isRevealed ? (
                 <Button 
                   size="lg"
                   onClick={handleReveal}
                   disabled={isSubmitting}
-                  className="rounded-full px-8 bg-emerald-600 hover:bg-emerald-500 text-white font-bold shadow-[0_0_20px_rgba(5,150,105,0.4)] transition-all"
+                  className="rounded-full px-10 py-3 bg-gradient-to-r from-emerald-600 to-green-500 hover:from-emerald-500 hover:to-green-400 text-white font-black text-base shadow-[0_0_30px_rgba(16,185,129,0.5)] hover:shadow-[0_0_40px_rgba(16,185,129,0.7)] transition-all border-2 border-emerald-400/50"
                 >
-                  {isSubmitting ? "Verifying ZK Proof..." : "Reveal & Settle"}
+                  {isSubmitting ? "⚙️ Verifying ZK Proof..." : "⚡ Reveal & Settle"}
                 </Button>
               ) : (
-                <div className="px-6 py-2 rounded-full bg-black/80 border border-yellow-500/50 text-yellow-500 font-bold tracking-widest uppercase">
-                  Match Settled
+                <div className="px-8 py-3 rounded-full bg-black/80 border-2 border-yellow-500/50 text-yellow-400 font-black tracking-widest uppercase text-sm shadow-[0_0_20px_rgba(212,175,55,0.3)]">
+                  ✓ Match Settled
                 </div>
               )}
             </div>
 
             {/* Player Cards */}
-            <div className="flex items-center justify-center gap-2 sm:gap-3 perspective-[1000px]">
+            <div className="flex items-center justify-center gap-2 md:gap-3">
               {myHand.map((cardValue) => (
                 <div key={cardValue} className={!hasCommitted ? "cursor-pointer" : "opacity-50 pointer-events-none"}>
                   <PlayingCard
@@ -316,7 +315,7 @@ export function TableFelt({
             </div>
 
             {/* Player Info Tag */}
-            <div className="px-4 py-1.5 md:px-6 md:py-2 rounded-full bg-black/60 border border-white/10 backdrop-blur-sm text-xs md:text-sm text-white/90 font-bold flex items-center gap-2 shadow-lg">
+            <div className="px-4 py-1.5 rounded-full bg-black/60 border border-white/10 backdrop-blur-sm text-xs md:text-sm text-white/90 font-bold flex items-center gap-2 shadow-lg">
               <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               You ({walletAddress ? `${walletAddress.slice(0,6)}...${walletAddress.slice(-4)}` : 'Connecting...'})
             </div>
