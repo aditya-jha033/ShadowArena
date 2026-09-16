@@ -28,7 +28,7 @@
 ## 🔗 Important Links
 
 - **Live Demo:** [https://shadow-arena-preview.vercel.app/](https://shadow-arena-preview.vercel.app/) _(Live Shadow Arena Application on Preview Network)_
-- **GitHub Repository:** [https://github.com/aditya-jha033/ShadowArena](https://github.com/aditya-jha033/ShadowArena)
+- **Product Pitch:** [ShadowArena Slide Deck](https://docs.google.com/presentation/d/1vbet1VGJyL97eaDAsq6htQIZPXIsuPgCpuF5YJUJkV8/edit?usp=sharing) _(Google Slide Link)_
 - **Product X (Twitter):** [@shadowarenaweb3](https://x.com/shadowarenaweb3) _(Official Shadow Arena X Profile)_
 - **Demo Video:** [Watch the Shadow Arena MVP Demo](https://youtu.be/DHhQHuXcIq0)
 
