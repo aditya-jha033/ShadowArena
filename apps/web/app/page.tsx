@@ -285,20 +285,17 @@ export default async function LandingPage() {
                 { 
                   quote: "Finally a Web3 game where you don't have to trust the house. ZK proofs running entirely in the background is the future.",
                   name: "Beta Tester", 
-                  addr: "mn_addr_preprod1jn2u7ky2jumthlqw40dl2sm3wxjjn3lycgll66yc6rz59guy74fsvj8p87", 
-                  role: "Alpha Cohort" 
+                  addr: "mn_addr_preprod1jn2u7ky2jumthlqw40dl2sm3wxjjn3lycgll66yc6rz59guy74fsvj8p87"
                 },
                 { 
                   quote: "The ability to play High Card Duel without paying gas fees because of 1AM wallet sponsorship makes this infinitely playable.",
                   name: "Beta Tester", 
-                  addr: "mn_addr_preprod17w88tm9krmywaecx2th3agkjzu7uu4a420euh8yum3nm42p84n8q7wjann", 
-                  role: "Beta Cohort" 
+                  addr: "mn_addr_preprod17w88tm9krmywaecx2th3agkjzu7uu4a420euh8yum3nm42p84n8q7wjann"
                 },
                 { 
                   quote: "Settlement on Preprod has been surprisingly fast. Staking tDUST and seeing it instantly hit my wallet when I win is incredible.",
                   name: "Beta Tester", 
-                  addr: "mn_addr_preprod1r8mfahw8davsu6kpskeka9udgt3l4daqtgnxt4703fa80p65567q95hzv4", 
-                  role: "Gamma Cohort" 
+                  addr: "mn_addr_preprod1r8mfahw8davsu6kpskeka9udgt3l4daqtgnxt4703fa80p65567q95hzv4"
                 }
               ].map((t, i) => (
                 <div key={i} className="bg-white/[0.02] border border-white/[0.05] rounded-2xl p-6 relative group hover:border-yellow-500/20 transition-all duration-300">
@@ -311,7 +308,6 @@ export default async function LandingPage() {
                       <div className="text-xs font-bold text-white/90">{t.name}</div>
                       <div className="text-[10px] font-mono text-white/30 truncate w-32" title={t.addr}>{t.addr.substring(0, 15)}...</div>
                     </div>
-                    <div className="ml-auto text-[10px] font-mono text-yellow-500/40 border border-yellow-500/10 bg-yellow-500/5 px-2 py-0.5 rounded">{t.role}</div>
                   </div>
                 </div>
               ))}
