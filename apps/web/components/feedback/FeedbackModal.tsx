@@ -45,7 +45,7 @@ export function FeedbackModal() {
       setWhatBroke("");
       setWhatConfused("");
       setSuggestions("");
-    } catch (error) {
+    } catch {
       toast.error("Failed to submit feedback. Please try again.");
     } finally {
       setLoading(false);

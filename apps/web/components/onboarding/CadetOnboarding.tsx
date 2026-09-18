@@ -13,6 +13,7 @@ export function CadetOnboarding() {
   useEffect(() => {
     const seen = localStorage.getItem("onboarding_seen");
     if (!seen && !isConnected) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setOpen(true);
     }
   }, [isConnected]);
@@ -52,7 +53,7 @@ export function CadetOnboarding() {
               <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
                 <h3 className="text-2xl font-bold">Welcome to ZK Gaming.</h3>
                 <p className="text-white/60 leading-relaxed">
-                  Shadow Arena is a fully on-chain gaming platform powered by Midnight's Zero-Knowledge technology. Let's get you set up to play on the Preprod network.
+                  Shadow Arena is a fully on-chain gaming platform powered by Midnight&apos;s Zero-Knowledge technology. Let&apos;s get you set up to play on the Preprod network.
                 </p>
               </div>
             )}
@@ -61,7 +62,7 @@ export function CadetOnboarding() {
               <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
                 <h3 className="text-2xl font-bold">1. Install 1AM Wallet</h3>
                 <p className="text-white/60 leading-relaxed">
-                  You'll need the 1AM Wallet Chrome extension to hold your assets and generate ZK proofs locally.
+                  You&apos;ll need the 1AM Wallet Chrome extension to hold your assets and generate ZK proofs locally.
                 </p>
                 <a href="https://chrome.google.com/webstore" target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-yellow-400 hover:text-yellow-300 mt-2">
                   Download 1AM Wallet <ExternalLink className="w-4 h-4" />
@@ -108,7 +109,7 @@ export function CadetOnboarding() {
             {step < 4 ? (
               <>Next Step <ChevronRight className="w-4 h-4 ml-1" /></>
             ) : (
-              <>Let's Play <CheckCircle2 className="w-4 h-4 ml-1" /></>
+              <>Let&apos;s Play <CheckCircle2 className="w-4 h-4 ml-1" /></>
             )}
           </Button>
         </div>
