@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { LayoutDashboard, Swords, User, Users, Shield, ChevronRight } from "lucide-react";
 import { WalletConnectButton } from "@/components/wallet/WalletConnectButton";
 import { CadetOnboarding } from "@/components/onboarding/CadetOnboarding";
+import { FeedbackModal } from "@/components/feedback/FeedbackModal";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
@@ -21,6 +22,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen bg-[#070709] text-foreground">
       <CadetOnboarding />
+      <FeedbackModal />
 
       {/* ── SIDEBAR ── */}
       <aside className="hidden md:flex flex-col w-64 border-r border-yellow-500/10 bg-black/60 shrink-0 sticky top-0 h-screen backdrop-blur-xl">
