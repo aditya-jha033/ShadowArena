@@ -1,4 +1,5 @@
 import { TableFelt } from "@/components/game/TableFelt";
+import { MatchStatusBanner } from "@/components/game/MatchStatusBanner";
 import { prisma } from "@/lib/prisma";
 
 export default async function TablePage(props: { params: Promise<{ id: string }> }) {
@@ -15,6 +16,7 @@ export default async function TablePage(props: { params: Promise<{ id: string }>
         </div>
       </header>
       <main className="flex-1 flex flex-col">
+        <MatchStatusBanner matchId={params.id} />
         <TableFelt contractAddress={match?.moveContract || ""} />
       </main>
     </div>
