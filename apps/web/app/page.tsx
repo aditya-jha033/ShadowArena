@@ -272,6 +272,53 @@ export default async function LandingPage() {
           </div>
         </section>
 
+        {/* ── TESTIMONIALS ── */}
+        <section className="py-32 px-6 border-t border-white/[0.04]">
+          <div className="max-w-5xl mx-auto">
+            <div className="text-center mb-16">
+              <p className="text-[11px] text-yellow-500 uppercase tracking-[0.25em] font-mono mb-4">Player Feedback</p>
+              <h2 className="text-[36px] font-black tracking-tight mb-4">What the community says.</h2>
+            </div>
+            
+            <div className="grid md:grid-cols-3 gap-6">
+              {[
+                { 
+                  quote: "Finally a Web3 game where you don't have to trust the house. ZK proofs running entirely in the background is the future.",
+                  name: "Beta Tester", 
+                  addr: "mn_addr_preprod1jn2u7ky2jumthlqw40dl2sm3wxjjn3lycgll66yc6rz59guy74fsvj8p87", 
+                  role: "Alpha Cohort" 
+                },
+                { 
+                  quote: "The ability to play High Card Duel without paying gas fees because of 1AM wallet sponsorship makes this infinitely playable.",
+                  name: "Beta Tester", 
+                  addr: "mn_addr_preprod17w88tm9krmywaecx2th3agkjzu7uu4a420euh8yum3nm42p84n8q7wjann", 
+                  role: "Beta Cohort" 
+                },
+                { 
+                  quote: "Settlement on Preprod has been surprisingly fast. Staking tDUST and seeing it instantly hit my wallet when I win is incredible.",
+                  name: "Beta Tester", 
+                  addr: "mn_addr_preprod1r8mfahw8davsu6kpskeka9udgt3l4daqtgnxt4703fa80p65567q95hzv4", 
+                  role: "Gamma Cohort" 
+                }
+              ].map((t, i) => (
+                <div key={i} className="bg-white/[0.02] border border-white/[0.05] rounded-2xl p-6 relative group hover:border-yellow-500/20 transition-all duration-300">
+                  <p className="text-sm text-white/60 leading-relaxed mb-6 italic">&quot;{t.quote}&quot;</p>
+                  <div className="flex items-center gap-3 border-t border-white/[0.05] pt-4">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-yellow-500/20 to-amber-500/10 flex items-center justify-center border border-yellow-500/20">
+                      <Users className="w-4 h-4 text-yellow-500/70" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-white/90">{t.name}</div>
+                      <div className="text-[10px] font-mono text-white/30 truncate w-32" title={t.addr}>{t.addr.substring(0, 15)}...</div>
+                    </div>
+                    <div className="ml-auto text-[10px] font-mono text-yellow-500/40 border border-yellow-500/10 bg-yellow-500/5 px-2 py-0.5 rounded">{t.role}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* ── FEATURES ── */}
         <section id="features" className="py-32 px-6 border-t border-white/[0.04]">
           <div className="max-w-5xl mx-auto">
