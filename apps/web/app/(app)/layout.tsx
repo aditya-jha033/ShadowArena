@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Swords, User, Shield, ChevronRight } from "lucide-react";
+import { LayoutDashboard, Swords, User, Users, Shield, ChevronRight } from "lucide-react";
 import { WalletConnectButton } from "@/components/wallet/WalletConnectButton";
 import { cn } from "@/lib/utils";
 
@@ -11,6 +11,7 @@ const NAV_ITEMS = [
   { href: "/lobby",     label: "Lobby",     icon: Swords,          desc: "Open Tables" },
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, desc: "Your Stats" },
   { href: "/profile",   label: "Profile",   icon: User,            desc: "Inventory" },
+  { href: "/preprod-directory", label: "Directory", icon: Users,   desc: "70 Players" },
 ];
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
