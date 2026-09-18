@@ -3,17 +3,19 @@
 import { useState, useEffect } from "react";
 import { X, ExternalLink, ChevronRight, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useWalletStore } from "@/lib/midnight/wallet";
 
 export function CadetOnboarding() {
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(1);
+  const { isConnected } = useWalletStore();
 
   useEffect(() => {
     const seen = localStorage.getItem("onboarding_seen");
-    if (!seen) {
+    if (!seen && !isConnected) {
       setOpen(true);
     }
-  }, []);
+  }, [isConnected]);
 
   const handleClose = () => {
     localStorage.setItem("onboarding_seen", "true");
