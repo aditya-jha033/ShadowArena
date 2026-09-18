@@ -131,3 +131,13 @@ model TableSeat {
   userId    String?  // null if empty
   isReady   Boolean  @default(false)
 }
+
+model Feedback {
+  id            String   @id @default(cuid())
+  walletAddress String?
+  overallRating Int      // 1-5
+  whatBroke     String?
+  whatConfused  String?
+  suggestions   String?
+  createdAt     DateTime @default(now())
+}
