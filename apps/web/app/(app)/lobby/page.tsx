@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Swords, Users, Clock, ChevronRight, Shield, Zap, Trophy, Dices, Lock } from "lucide-react";
 import { StakeModal } from "@/components/game/StakeModal";
+import { toast } from "sonner";
+import { PrivateWagerDialog } from "@/components/game/PrivateWagerDialog";
 
 interface OpenTable {
   id: string;
@@ -48,15 +50,11 @@ export default function LobbyPage() {
     return () => clearInterval(interval);
   }, []);
 
-  const handleJoinMatch = async (table: OpenTable) => {
+  const [pendingPrivateTable, setPendingPrivateTable] = useState<OpenTable | null>(null);
+
+  const proceedJoin = async (table: OpenTable, amount: number) => {
     try {
       setJoiningId(table.id);
-      let amount = table.rawStakeAmount;
-      if (table.isPrivateStake) {
-        const input = window.prompt("This is a Private Wager. Enter the agreed DUST amount to match Player 1:");
-        if (!input) return;
-        amount = Number(input);
-      }
       if (!amount || isNaN(amount)) throw new Error("Invalid stake amount");
       if (!table.stakeContract) throw new Error("Match missing stake contract address");
 
@@ -95,14 +93,28 @@ export default function LobbyPage() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       console.error(e);
-      alert(e.message || "Failed to join table");
+      toast.error(e.message || "Failed to join table");
     } finally {
       setJoiningId(null);
+      setPendingPrivateTable(null);
     }
+  };
+
+  const handleJoinMatch = async (table: OpenTable) => {
+    if (table.isPrivateStake) {
+      setPendingPrivateTable(table);
+      return;
+    }
+    await proceedJoin(table, table.rawStakeAmount!);
   };
 
   return (
     <div className="flex flex-col min-h-screen bg-[#070709]">
+      <PrivateWagerDialog 
+        open={!!pendingPrivateTable}
+        onOpenChange={(open) => !open && setPendingPrivateTable(null)}
+        onSubmit={(amt) => pendingPrivateTable && proceedJoin(pendingPrivateTable, amt)}
+      />
 
       {/* Header */}
       <header className="px-6 h-16 flex items-center justify-between border-b border-yellow-500/10 bg-black/40 backdrop-blur-sm sticky top-0 z-40">
