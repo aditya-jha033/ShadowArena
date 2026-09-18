@@ -19,7 +19,7 @@ export default function PreprodDirectoryPage() {
     fetch("/api/preprod/users")
       .then((r) => r.json())
       .then((data) => setUsers(data))
-      .catch((e) => toast.error("Failed to load directory"))
+      .catch(() => toast.error("Failed to load directory"))
       .finally(() => setLoading(false));
   }, []);
 
