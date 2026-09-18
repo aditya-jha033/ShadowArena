@@ -372,28 +372,58 @@ export default async function LandingPage() {
       </main>
 
       {/* ── FOOTER ── */}
-      <footer className="border-t border-yellow-500/10 bg-black/40 py-10 px-6">
-        <div className="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="flex items-center gap-3">
-            <Image src="/logo.png" alt="Shadow Arena" width={24} height={24} className="w-6 h-6 object-contain" />
-            <p className="text-[13px] text-white/25">
-              © {new Date().getFullYear()} Shadow Arena · Built on{" "}
-              <a href="https://midnight.network" target="_blank" rel="noopener noreferrer" className="hover:text-yellow-400 transition-colors">
-                Midnight Network
-              </a>
+      <footer className="border-t border-yellow-500/10 bg-black/40 py-16 px-6">
+        <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+          
+          {/* Col 1 */}
+          <div className="space-y-4">
+            <Link href="/" className="flex items-center gap-2">
+              <Image src="/logo.png" alt="Shadow Arena" width={24} height={24} className="w-6 h-6 object-contain" />
+              <span className="font-black text-yellow-400 text-lg tracking-tight">Shadow Arena</span>
+            </Link>
+            <p className="text-sm text-white/40 leading-relaxed">
+              Provably fair ZK card gaming on Midnight Preprod Network. Zero gas, forever.
             </p>
           </div>
-          <nav className="flex gap-7">
-            {[
-              { label: "GitHub", href: "https://github.com/aditya-jha033/ShadowArena" },
-              { label: "X / Twitter", href: "https://x.com/shadowarenaweb3" },
-              { label: "Docs", href: "/README.md" },
-            ].map((item) => (
-              <a key={item.label} href={item.href} target="_blank" rel="noopener noreferrer" className="text-[12px] text-white/25 hover:text-yellow-400 transition-colors">
-                {item.label}
-              </a>
-            ))}
-          </nav>
+
+          {/* Col 2 */}
+          <div className="space-y-4">
+            <h4 className="font-bold text-white/90">Play</h4>
+            <ul className="space-y-2 text-sm text-white/50">
+              <li><Link href="/lobby" className="hover:text-yellow-400 transition-colors">Lobby</Link></li>
+              <li><Link href="/dashboard" className="hover:text-yellow-400 transition-colors">Dashboard</Link></li>
+              <li><Link href="/profile" className="hover:text-yellow-400 transition-colors">Profile</Link></li>
+              <li><Link href="/preprod-directory" className="hover:text-yellow-400 transition-colors">Preprod Players</Link></li>
+            </ul>
+          </div>
+
+          {/* Col 3 */}
+          <div className="space-y-4">
+            <h4 className="font-bold text-white/90">Resources</h4>
+            <ul className="space-y-2 text-sm text-white/50">
+              <li><a href="https://github.com/aditya-jha033/ShadowArena#readme" target="_blank" rel="noreferrer" className="hover:text-yellow-400 transition-colors">Documentation</a></li>
+              <li><a href="https://github.com/aditya-jha033/ShadowArena" target="_blank" rel="noreferrer" className="hover:text-yellow-400 transition-colors">GitHub Source</a></li>
+              <li><a href="https://x.com/shadowarenaweb3" target="_blank" rel="noreferrer" className="hover:text-yellow-400 transition-colors">X / Twitter</a></li>
+            </ul>
+          </div>
+
+          {/* Col 4 */}
+          <div className="space-y-4">
+            <h4 className="font-bold text-white/90">Network</h4>
+            <div className="flex items-center gap-2 text-[10px] font-mono text-emerald-400 border border-emerald-500/20 bg-emerald-500/5 px-2 py-1 rounded w-fit">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              Preprod Network
+            </div>
+            <ul className="space-y-2 text-sm text-white/50 mt-4">
+              <li><a href="https://preprod.midnightexplorer.com" target="_blank" rel="noreferrer" className="hover:text-emerald-400 transition-colors">Midnight Explorer</a></li>
+              <li><a href="https://faucet.preprod.midnight.network/" target="_blank" rel="noreferrer" className="hover:text-emerald-400 transition-colors">Testnet Faucet</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="max-w-5xl mx-auto pt-8 border-t border-white/[0.05] flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-white/30">
+          <p>© {new Date().getFullYear()} Shadow Arena. All rights reserved.</p>
+          <p>Built on <a href="https://midnight.network" target="_blank" rel="noreferrer" className="text-white/60 hover:text-yellow-400">Midnight Network</a></p>
         </div>
       </footer>
     </div>
