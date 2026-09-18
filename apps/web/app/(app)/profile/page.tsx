@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Wallet, ShieldCheck, Box, Lock, Eye, EyeOff, User } from "lucide-react";
 import { useWalletStore } from "@/lib/midnight/wallet";
@@ -153,7 +154,6 @@ export default function ProfilePage() {
           <div className="flex items-center gap-3">
             <h2 className="text-lg font-black text-white">Cosmetic Inventory</h2>
             <div className="flex-1 h-px bg-yellow-500/10" />
-            <span className="text-[10px] font-mono text-white/20 border border-white/10 px-3 py-1 rounded">Phase 2</span>
           </div>
 
           {!isConnected ? (
@@ -162,14 +162,56 @@ export default function ProfilePage() {
               <p className="text-white/30 text-sm">Connect your wallet to see your inventory.</p>
             </div>
           ) : (
-            <div className="rounded-2xl border border-yellow-500/10 py-16 text-center bg-black/20">
-              <Box className="w-10 h-10 mx-auto mb-3 text-yellow-500/20" />
-              <p className="text-white/30 text-sm">Cosmetic items will be available in Phase 2.</p>
-              <p className="text-white/20 text-xs mt-1">Card backs, table skins, and more coming soon.</p>
-            </div>
+            <InventoryGrid walletAddress={walletAddress} />
           )}
         </section>
       </main>
+    </div>
+  );
+}
+
+function InventoryGrid({ walletAddress }: { walletAddress: string | null }) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [assets, setAssets] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!walletAddress) return;
+    fetch(`/api/user/assets?walletAddress=${walletAddress}`)
+      .then(res => res.json())
+      .then(data => setAssets(Array.isArray(data) ? data : []))
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, [walletAddress]);
+
+  if (loading) {
+    return (
+      <div className="rounded-2xl border border-yellow-500/10 py-16 text-center bg-black/20">
+        <div className="w-5 h-5 rounded-full border-2 border-yellow-500 border-t-transparent animate-spin mx-auto" />
+      </div>
+    );
+  }
+
+  if (assets.length === 0) {
+    return (
+      <div className="rounded-2xl border border-yellow-500/10 py-16 text-center bg-black/20">
+        <Box className="w-10 h-10 mx-auto mb-3 text-yellow-500/20" />
+        <p className="text-white/30 text-sm">Play matches to earn cosmetics.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      {assets.map((ownership, i) => (
+        <div key={i} className="bg-white/5 border border-white/10 rounded-xl p-4 text-center">
+          <div className="w-16 h-16 bg-gradient-to-br from-yellow-500/20 to-transparent mx-auto rounded-lg mb-3 border border-yellow-500/20 flex items-center justify-center">
+             {ownership.asset.type === 'card_back' ? '🎴' : '📦'}
+          </div>
+          <div className="text-sm font-bold">{ownership.asset.name}</div>
+          <div className="text-xs text-white/40">{ownership.asset.rarity}</div>
+        </div>
+      ))}
     </div>
   );
 }
