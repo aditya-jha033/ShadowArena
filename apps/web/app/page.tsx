@@ -28,7 +28,7 @@ async function getStats() {
       zkProofsVerified: zkProofs,
       registeredUsers: users,
     };
-  } catch (error) {
+  } catch {
     return { matchesPlayed: 0, tDustStaked: 0, zkProofsVerified: 0, registeredUsers: 0 };
   }
 }
