@@ -46,7 +46,7 @@ export default function LandingPage() {
               {/* Live badge */}
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-yellow-500/30 bg-yellow-500/10 text-yellow-300 text-[11px] font-mono tracking-[0.15em] uppercase mb-8">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                Live on Midnight Preview Network
+                Live on Midnight Preprod Network
               </div>
 
               <h1 className="text-[56px] sm:text-[66px] xl:text-[76px] font-black tracking-[-0.03em] leading-[0.95] mb-6">
@@ -109,7 +109,7 @@ export default function LandingPage() {
               { label: "tDUST Staked", value: "2,400,000", color: "text-yellow-400" },
               { label: "ZK Proofs Verified", value: "28,410", color: "text-emerald-400" },
               { label: "Network Uptime", value: "99.9%", color: "text-teal-400" },
-              { label: "On Midnight Previewnet", value: "LIVE", color: "text-yellow-400" },
+              { label: "On Midnight Preprod", value: "LIVE", color: "text-yellow-400" },
             ]).map((s, i) => (
               <div key={i} className="flex items-center gap-3 whitespace-nowrap px-8 border-r border-white/5">
                 <span className="text-white/20 text-[11px] uppercase tracking-widest font-mono">{s.label}</span>
@@ -286,7 +286,7 @@ export default function LandingPage() {
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-amber-500">Shadow Arena.</span>
               </h2>
               <p className="text-white/35 mb-10 max-w-md mx-auto text-[15px] leading-relaxed relative z-10">
-                Connect your 1AM Wallet and experience provably fair ZK card gaming on Midnight Preview Network. Zero gas, forever.
+                Connect your 1AM Wallet and experience provably fair ZK card gaming on Midnight Preprod Network. Zero gas, forever.
               </p>
               <Link href="/lobby" className="relative z-10 inline-block">
                 <Button className="h-14 px-14 text-[16px] font-black bg-gradient-to-r from-yellow-600 to-amber-500 hover:from-yellow-500 hover:to-amber-400 text-black rounded-xl gap-3 shadow-[0_0_40px_rgba(212,175,55,0.35)] hover:shadow-[0_0_70px_rgba(212,175,55,0.55)] transition-all hover:scale-[1.03]">

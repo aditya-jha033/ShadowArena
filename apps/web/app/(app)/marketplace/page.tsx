@@ -51,7 +51,7 @@ export default function MarketplacePage() {
     }
     // TODO: wire to on-chain asset transfer once contracts are deployed
     toast.info("On-chain purchase coming soon", {
-      description: `${item.name} will be purchasable once contracts are deployed on Midnight Preview.`,
+      description: `${item.name} will be purchasable once contracts are deployed on Midnight Preprod.`,
     });
   };
 

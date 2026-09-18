@@ -11,7 +11,7 @@ export default async function TablePage(props: { params: Promise<{ id: string }>
         <div className="font-bold tracking-tight">Table #{params.id}</div>
         <div className="ml-auto text-sm text-muted-foreground flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-success animate-pulse" />
-          Preview Network
+          Preprod Network
         </div>
       </header>
       <main className="flex-1 flex flex-col">

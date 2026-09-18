@@ -62,7 +62,7 @@ export default function ProfilePage() {
                   </div>
                   <div className="flex items-center gap-2 text-sm text-emerald-400">
                     <ShieldCheck className="w-4 h-4" />
-                    <span>Connected & ZK-verified on Midnight Previewnet</span>
+                    <span>Connected & ZK-verified on Midnight Preprod</span>
                   </div>
                   <Button
                     variant="outline"

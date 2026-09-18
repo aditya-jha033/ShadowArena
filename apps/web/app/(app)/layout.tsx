@@ -34,7 +34,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         {/* Network Badge */}
         <div className="mx-3 mt-4 flex items-center gap-2 px-3 py-2 rounded-xl border border-emerald-500/20 bg-emerald-500/5">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
-          <span className="text-[10px] font-mono text-emerald-400 uppercase tracking-widest">Midnight Previewnet · Live</span>
+          <span className="text-[10px] font-mono text-emerald-400 uppercase tracking-widest">Midnight Preprod · Live</span>
         </div>
 
         {/* Nav */}

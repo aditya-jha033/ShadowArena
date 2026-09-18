@@ -177,7 +177,7 @@ export default function DeployPage() {
       const w1am = (window as any).midnight?.["1am"];
       if (!w1am) throw new Error("1AM Wallet not found");
       
-      const api = await w1am.connect("preview");
+      const api = await w1am.connect("preprod");
       
       const { deployMidnightContract } = await import("@/lib/midnight/deploy");
       const { address: realAddress, txHash } = await deployMidnightContract(api, contractId, contract?.constructorArgs ?? []);
@@ -188,7 +188,7 @@ export default function DeployPage() {
         description: `Tx: ${txHash.slice(0, 8)}...${txHash.slice(-8)}`,
         action: txHash ? {
           label: "Verify on Explorer",
-          onClick: () => window.open(`https://preview.midnightexplorer.com/transactions/${txHash}`, "_blank", "noopener,noreferrer"),
+          onClick: () => window.open(`https://preprod.midnightexplorer.com/transactions/${txHash}`, "_blank", "noopener,noreferrer"),
         } : undefined,
       });
     } catch (error: unknown) {
@@ -230,7 +230,7 @@ export default function DeployPage() {
           ) : (
             <div className="flex items-center gap-2 text-green-400 bg-green-400/10 px-4 py-2 rounded-full border border-green-400/20">
               <Server className="w-5 h-5" />
-              <span className="text-sm font-medium">Connected to Preview Network</span>
+              <span className="text-sm font-medium">Connected to Preprod Network</span>
             </div>
           )}
         </div>
@@ -275,7 +275,7 @@ export default function DeployPage() {
                   <div className="flex gap-2">
                     {isDeployed && (
                       <a
-                        href={`https://preview.midnightexplorer.com/contracts/${deployedAddresses[contract.id]}`}
+                        href={`https://preprod.midnightexplorer.com/contracts/${deployedAddresses[contract.id]}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors border border-blue-500/30 text-blue-400 hover:bg-blue-500/10 h-9 px-4 py-2"

@@ -43,7 +43,7 @@ export function TableFelt({
       const w1am = (window as any).midnight?.["1am"];
       if (!w1am) throw new Error("1AM Wallet not found");
       
-      const api = await w1am.connect("preview");
+      const api = await w1am.connect("preprod");
       const { callMidnightCircuit } = await import("@/lib/midnight/deploy");
       const { pureCircuits } = await import("@/lib/midnight/contracts/move-validity/contract");
       
@@ -114,7 +114,7 @@ export function TableFelt({
         duration: 8000,
         action: {
           label: "Verify on Explorer",
-          onClick: () => window.open(`https://preview.midnightexplorer.com/transactions/${txHash}`, "_blank", "noopener,noreferrer"),
+          onClick: () => window.open(`https://preprod.midnightexplorer.com/transactions/${txHash}`, "_blank", "noopener,noreferrer"),
         },
       });
 
@@ -149,7 +149,7 @@ export function TableFelt({
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const w1am = (window as any).midnight?.["1am"];
-      const api = await w1am.connect("preview");
+      const api = await w1am.connect("preprod");
       const { callMidnightCircuit } = await import("@/lib/midnight/deploy");
 
       const withRetry = async <T,>(operation: () => Promise<T>, retries = 6, delay = 5000): Promise<T> => {

@@ -26,7 +26,7 @@ export class GameContractAPI {
   // Mock deploying a new table (Player 1 joins immediately)
    
   static async deployNewTable(walletProvider: any, commitment: Uint8Array): Promise<GameContractAPI> {
-    console.log("Mocking contract deployment to preview network...");
+    console.log("Mocking contract deployment to preprod network...");
     // await deployContract(providers, { compiledContract, privateStateId, initialPrivateState })
     // await contract.callTx.joinPlayer1(commitment)
     return new GameContractAPI();

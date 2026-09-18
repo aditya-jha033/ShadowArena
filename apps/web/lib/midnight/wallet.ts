@@ -66,7 +66,7 @@ export const useWalletStore = create<WalletState>()(
 
           const { api, type } = detected;
           const connectedApi =
-            type === "1am" ? await api.connect("preview") : await api.enable();
+            type === "1am" ? await api.connect("preprod") : await api.enable();
 
           let displayAddress: string;
           try {

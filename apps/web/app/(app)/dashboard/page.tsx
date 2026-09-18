@@ -89,7 +89,7 @@ export default function DashboardPage() {
           )}
           <div className="flex items-center gap-2 text-[10px] font-mono text-emerald-400 border border-emerald-500/20 bg-emerald-500/5 px-3 py-1.5 rounded-full">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            Previewnet · Live
+            Preprod · Live
           </div>
         </div>
       </header>

@@ -47,7 +47,7 @@ export function StakeModal({ gameMode, onMatchCreated }: StakeModalProps) {
       const w1am = (window as any).midnight?.["1am"];
       if (!w1am) throw new Error("1AM Wallet not installed");
 
-      const api = await w1am.connect("preview");
+      const api = await w1am.connect("preprod");
       const { deployMidnightContract, callMidnightCircuit } = await import("@/lib/midnight/deploy");
 
       const contractName = isPrivate ? "stake-pool-private" : "stake-pool";
@@ -122,7 +122,7 @@ export function StakeModal({ gameMode, onMatchCreated }: StakeModalProps) {
         description: `Tx: ${txHash.slice(0, 8)}...${txHash.slice(-8)}. Waiting for opponent...`,
         action: txHash ? {
           label: "Verify on Explorer",
-          onClick: () => window.open(`https://preview.midnightexplorer.com/transactions/${txHash}`, "_blank", "noopener,noreferrer"),
+          onClick: () => window.open(`https://preprod.midnightexplorer.com/transactions/${txHash}`, "_blank", "noopener,noreferrer"),
         } : undefined,
       });
 

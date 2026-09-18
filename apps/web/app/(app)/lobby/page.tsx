@@ -63,7 +63,7 @@ export default function LobbyPage() {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const w1am = (window as any).midnight?.["1am"];
       if (!w1am) throw new Error("1AM Wallet not installed");
-      const api = await w1am.connect("preview");
+      const api = await w1am.connect("preprod");
       const { callMidnightCircuit } = await import("@/lib/midnight/deploy");
       const contractName = table.isPrivateStake ? "stake-pool-private" : "stake-pool";
       const circuitName = table.isPrivateStake ? "stakePrivate" : "stakePlayer2";
@@ -117,7 +117,7 @@ export default function LobbyPage() {
         </div>
         <div className="flex items-center gap-2 text-[10px] font-mono text-emerald-400 border border-emerald-500/20 bg-emerald-500/5 px-3 py-1.5 rounded-full">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-          Previewnet · Live
+          Preprod · Live
         </div>
       </header>
 

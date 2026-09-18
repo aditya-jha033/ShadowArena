@@ -30,7 +30,7 @@ class FetchZkConfigProvider {
 }
 
 export async function deployMidnightContract(api: any, contractName: string, constructorArgs: any[] = []): Promise<{ address: string, txHash: string }> {
-  setNetworkId('preview');
+  setNetworkId('preprod');
   console.log(`Starting deployment for: ${contractName}`);
 
 
@@ -115,7 +115,7 @@ export async function callMidnightCircuit(
   circuitName: string, 
   args: any[]
 ): Promise<string> {
-  setNetworkId('preview');
+  setNetworkId('preprod');
   
   const zkConfigProvider = new FetchZkConfigProvider(contractName);
   const provingProvider = await api.getProvingProvider(zkConfigProvider);
@@ -132,8 +132,8 @@ export async function callMidnightCircuit(
     }
   };
 
-  const indexerUrl = 'https://indexer.preview.midnight.network/api/v4/graphql';
-  const indexerWsUrl = 'wss://indexer.preview.midnight.network/api/v4/graphql/ws';
+  const indexerUrl = 'https://indexer.preprod.midnight.network/api/v4/graphql';
+  const indexerWsUrl = 'wss://indexer.preprod.midnight.network/api/v4/graphql/ws';
   const publicDataProvider = indexerPublicDataProvider(indexerUrl, indexerWsUrl);
 
   let contractModule: any;
