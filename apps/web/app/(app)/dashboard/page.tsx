@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Swords, Dices, Clock, Trophy, Loader2, Shield, Lock, TrendingUp, Wallet } from "lucide-react";
 import { StakeModal } from "@/components/game/StakeModal";
 import { useWalletStore } from "@/lib/midnight/wallet";
+import { toast } from "sonner";
 
 interface Stats {
   matchesPlayed: number;
@@ -54,8 +55,8 @@ export default function DashboardPage() {
         ]);
         if (statsRes.ok) setStats(await statsRes.json());
         if (activityRes.ok) setActivity(await activityRes.json());
-      } catch (e) {
-        console.error("Failed to load dashboard data", e);
+      } catch {
+        toast.error("Failed to load dashboard data");
       } finally {
         setLoading(false);
       }
