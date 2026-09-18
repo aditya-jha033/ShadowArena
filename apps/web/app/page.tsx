@@ -7,8 +7,34 @@ import Link from "next/link";
 import Image from "next/image";
 import { WalletConnectButton } from "@/components/wallet/WalletConnectButton";
 import { HeroGameComponent } from "@/components/game/HeroGameComponent";
+import { prisma } from "@/lib/prisma";
 
-export default function LandingPage() {
+export const revalidate = 60;
+
+async function getStats() {
+  try {
+    const [matchesPlayed, zkProofs, users] = await Promise.all([
+      prisma.match.count({ where: { status: "settled" } }),
+      prisma.matchMove.count(),
+      prisma.user.count(),
+    ]);
+    const stakeSum = await prisma.stake.aggregate({
+      where: { isPrivate: false },
+      _sum: { amount: true },
+    });
+    return {
+      matchesPlayed,
+      tDustStaked: Number(stakeSum._sum.amount ?? 0),
+      zkProofsVerified: zkProofs,
+      registeredUsers: users,
+    };
+  } catch (error) {
+    return { matchesPlayed: 0, tDustStaked: 0, zkProofsVerified: 0, registeredUsers: 0 };
+  }
+}
+
+export default async function LandingPage() {
+  const stats = await getStats();
   return (
     <div className="flex flex-col min-h-screen bg-[#070709] text-white overflow-x-hidden">
 
@@ -81,9 +107,9 @@ export default function LandingPage() {
               {/* Stats strip */}
               <div className="flex items-center gap-10 pt-6 border-t border-white/[0.06] w-full">
                 {[
-                  { value: "14K+", label: "Games Played" },
-                  { value: "2.4M", label: "tDUST Staked" },
-                  { value: "28K+", label: "ZK Proofs" },
+                  { value: stats.matchesPlayed.toLocaleString(), label: "Games Played" },
+                  { value: stats.tDustStaked.toLocaleString(), label: "tDUST Staked" },
+                  { value: stats.zkProofsVerified.toLocaleString(), label: "ZK Proofs" },
                 ].map((s) => (
                   <div key={s.label} className="flex flex-col">
                     <span className="text-[24px] font-black font-mono text-yellow-400">{s.value}</span>
@@ -105,9 +131,9 @@ export default function LandingPage() {
         <section className="relative py-6 border-y border-yellow-500/10 bg-black/40 overflow-hidden">
           <div className="flex gap-12 animate-[marquee_20s_linear_infinite] w-max">
             {[...Array(3)].flatMap(() => [
-              { label: "Games Played", value: "14,205", color: "text-white" },
-              { label: "tDUST Staked", value: "2,400,000", color: "text-yellow-400" },
-              { label: "ZK Proofs Verified", value: "28,410", color: "text-emerald-400" },
+              { label: "Games Played", value: stats.matchesPlayed.toLocaleString(), color: "text-white" },
+              { label: "tDUST Staked", value: stats.tDustStaked.toLocaleString(), color: "text-yellow-400" },
+              { label: "ZK Proofs Verified", value: stats.zkProofsVerified.toLocaleString(), color: "text-emerald-400" },
               { label: "Network Uptime", value: "99.9%", color: "text-teal-400" },
               { label: "On Midnight Preprod", value: "LIVE", color: "text-yellow-400" },
             ]).map((s, i) => (
