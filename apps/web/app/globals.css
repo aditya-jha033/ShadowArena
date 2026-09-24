@@ -7,8 +7,8 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --font-heading: var(--font-heading);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -125,11 +125,51 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-sans), system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    letter-spacing: 0.01em;
+    font-weight: 400;
   }
   html {
     @apply font-sans;
   }
+
+  /* Orbitron for all headings — the futuristic display font */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading), var(--font-sans), sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    line-height: 1.15;
+  }
+  h1 { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 900; letter-spacing: 0.08em; }
+  h2 { font-size: clamp(1.5rem, 3.5vw, 2.5rem); font-weight: 800; }
+  h3 { font-size: clamp(1.1rem, 2.5vw, 1.75rem); font-weight: 700; }
+  h4 { font-size: 1.125rem; font-weight: 600; letter-spacing: 0.06em; }
+
+  /* Space Mono for all code, wallet addresses, labels */
+  code, kbd, samp, pre, .font-mono {
+    font-family: var(--font-mono), monospace;
+    letter-spacing: -0.03em;
+  }
+
+  /* Strong paragraph readability at Rajdhani */
+  p {
+    font-family: var(--font-sans), sans-serif;
+    font-size: 1rem;
+    line-height: 1.65;
+    font-weight: 400;
+    letter-spacing: 0.01em;
+  }
+
+  /* Sharper labels / nav items */
+  label, button, .text-sm {
+    letter-spacing: 0.02em;
+  }
 }
+
+
 
 @keyframes marquee {
   0%   { transform: translateX(0); }
