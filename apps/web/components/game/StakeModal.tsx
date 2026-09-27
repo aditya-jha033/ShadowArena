@@ -60,7 +60,7 @@ export function StakeModal({ gameMode, onMatchCreated }: StakeModalProps) {
           } catch (e: any) {
             const msg = e.message || String(e);
             if ((msg.includes("Wallet busy") || msg.includes("Duplicate request") || msg.includes("pending")) && i < retries - 1) {
-              console.log(`Wallet busy/duplicate, retrying in ${delay/1000}s...`);
+              // Wallet busy or duplicate submission — back off and retry
               await new Promise(r => setTimeout(r, delay));
             } else {
               throw e;

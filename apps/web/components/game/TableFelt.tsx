@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useCallback } from "react";
 import { PlayingCard } from "./PlayingCard";
@@ -432,7 +432,7 @@ export function TableFelt({
           </div>
 
           {/* Player area */}
-          <div className="relative z-40 flex flex-col items-center gap-3 w-full">
+          <div className="relative z-40 flex flex-col items-center gap-3 w-full pb-24 md:pb-0">
             {/* Action button */}
             <div className="flex items-center justify-center">
               {renderActionButton()}
@@ -440,11 +440,11 @@ export function TableFelt({
 
             {/* Hand — only shown once dealt */}
             {myHand.length > 0 && (
-              <div className="flex items-center justify-center gap-2 md:gap-3">
+              <div className="flex items-center justify-start sm:justify-center gap-2 md:gap-3 w-full max-w-[calc(100vw-1rem)] overflow-x-auto px-4 pb-6 pt-2 snap-x [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
                 {myHand.map((cardValue) => (
                   <div
                     key={cardValue}
-                    className={phase === "SELECT_CARD" ? "cursor-pointer" : "opacity-50 pointer-events-none"}
+                    className={`shrink-0 snap-center ${phase === "SELECT_CARD" ? "cursor-pointer" : "opacity-50 pointer-events-none"}`}
                   >
                     <PlayingCard
                       value={cardValue}
