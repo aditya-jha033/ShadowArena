@@ -49,9 +49,10 @@ export default function MarketplacePage() {
       toast.error("Connect your wallet first");
       return;
     }
-    // TODO: wire to on-chain asset transfer once contracts are deployed
+    // Phase 2: On-chain NFT asset transfer via Midnight smart contract.
+    // Purchase flow will call the asset-registry contract once deployed to Preprod.
     toast.info("On-chain purchase coming soon", {
-      description: `${item.name} will be purchasable once contracts are deployed on Midnight Preprod.`,
+      description: `${item.name} will be purchasable once the asset-registry contract is deployed on Midnight Preprod.`,
     });
   };
 
