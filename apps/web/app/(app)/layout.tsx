@@ -3,18 +3,18 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Swords, User, Users, Shield, ChevronRight, HelpCircle } from "lucide-react";
+import { LayoutDashboard, Swords, User, Shield, ChevronRight, HelpCircle, Trophy } from "lucide-react";
 import { WalletConnectButton } from "@/components/wallet/WalletConnectButton";
 import { CadetOnboarding } from "@/components/onboarding/CadetOnboarding";
 import { FeedbackModal } from "@/components/feedback/FeedbackModal";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
-  { href: "/lobby",     label: "Lobby",     icon: Swords,          desc: "Open Tables" },
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, desc: "Your Stats" },
-  { href: "/profile",   label: "Profile",   icon: User,            desc: "Inventory" },
-  { href: "/preprod-directory", label: "Directory", icon: Users,   desc: "70 Players" },
-  { href: "/help",      label: "Support",   icon: HelpCircle,      desc: "FAQ & Docs" },
+  { href: "/lobby",             label: "Lobby",       icon: Swords,          desc: "Open Tables" },
+  { href: "/dashboard",         label: "Dashboard",   icon: LayoutDashboard, desc: "Your Stats" },
+  { href: "/leaderboard",       label: "Leaderboard", icon: Trophy,          desc: "Top Players" },
+  { href: "/profile",           label: "Profile",     icon: User,            desc: "Inventory" },
+  { href: "/help",              label: "Support",     icon: HelpCircle,      desc: "FAQ & Docs" },
 ];
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {

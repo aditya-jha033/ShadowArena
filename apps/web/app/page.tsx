@@ -389,7 +389,6 @@ export default async function LandingPage() {
               <li><Link href="/lobby" className="hover:text-yellow-400 transition-colors">Lobby</Link></li>
               <li><Link href="/dashboard" className="hover:text-yellow-400 transition-colors">Dashboard</Link></li>
               <li><Link href="/profile" className="hover:text-yellow-400 transition-colors">Profile</Link></li>
-              <li><Link href="/preprod-directory" className="hover:text-yellow-400 transition-colors">Preprod Players</Link></li>
             </ul>
           </div>
 
