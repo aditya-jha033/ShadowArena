@@ -31,7 +31,7 @@ class FetchZkConfigProvider {
 
 export async function deployMidnightContract(api: any, contractName: string, constructorArgs: any[] = []): Promise<{ address: string, txHash: string }> {
   setNetworkId('preprod');
-  console.log(`Starting deployment for: ${contractName}`);
+
 
 
   // 1. Get Wallet Configuration (omitted)

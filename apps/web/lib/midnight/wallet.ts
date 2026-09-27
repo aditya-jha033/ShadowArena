@@ -57,11 +57,9 @@ export const useWalletStore = create<WalletState>()(
           const detected = await detect1AMWallet();
 
           if (!detected) {
-            alert(
-              "Please install the 1AM Wallet extension and make sure it is unlocked."
+            throw new Error(
+              "1AM Wallet not found. Please install the 1AM Wallet extension, refresh, and ensure it is unlocked."
             );
-            set({ isConnecting: false });
-            return;
           }
 
           const { api, type } = detected;
