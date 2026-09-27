@@ -7,6 +7,7 @@ import { Swords, Users, Clock, ChevronRight, Shield, Zap, Trophy, Dices, Lock } 
 import { StakeModal } from "@/components/game/StakeModal";
 import { toast } from "sonner";
 import { PrivateWagerDialog } from "@/components/game/PrivateWagerDialog";
+import { HowToPlayCard } from "@/components/game/HowToPlayCard";
 
 interface OpenTable {
   id: string;
@@ -166,6 +167,9 @@ export default function LobbyPage() {
             </div>
           </div>
         </section>
+
+        {/* ── HOW TO PLAY CARD ── */}
+        <HowToPlayCard />
 
         {/* ── GAME MODES ── */}
         <section className="space-y-4">
