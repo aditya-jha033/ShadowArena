@@ -46,7 +46,7 @@ jobs:
           MISSING=0
           for contract in stake-pool stake-pool-private; do
             if [ -d "contracts/dist/$contract/contract" ]; then
-              echo "- stake-pool: compiled artifact present" >> $GITHUB_STEP_SUMMARY
+              echo "- $contract: compiled artifact present" >> $GITHUB_STEP_SUMMARY
             else
               echo "- $contract: MISSING compiled artifact" >> $GITHUB_STEP_SUMMARY
               MISSING=1

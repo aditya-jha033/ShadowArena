@@ -42,7 +42,7 @@ jobs:
         run: npm run build
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://placeholder:placeholder@localhost:5432/placeholder' }}
-          NEXT_PUBLIC_MIDNIGHT_NETWORK: preview
+          NEXT_PUBLIC_MIDNIGHT_NETWORK: preprod
           SKIP_ENV_VALIDATION: true
 
       - name: Report build size
