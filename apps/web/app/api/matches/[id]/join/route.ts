@@ -18,22 +18,42 @@ export async function POST(
       create: { walletAddress },
     });
 
-    // Update match to add player 2 and set status to active
-    await prisma.match.update({
+    // Fetch the match + its pre-shuffled deck
+    const match = await prisma.match.findUnique({
       where: { id },
-      data: {
-        status: "active",
-        players: {
-          create: { userId: user.id, seat: 1 },
-        },
-        seats: {
-          updateMany: {
-            where: { seatIndex: 1 },
-            data: { userId: user.id },
-          },
-        },
-      },
+      include: { players: true },
     });
+
+    if (!match) return new Response("Match not found", { status: 404 });
+    if (match.status !== "pending") return new Response("Match is not open", { status: 409 });
+
+    // Deal 5 unique cards to each player from the pre-shuffled deck
+    const deck = (match.deckData as number[]) ?? [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
+    const p1Hand = deck.slice(0, 5);
+    const p2Hand = deck.slice(5, 10);
+
+    // Update P1's hand + add P2 + set match to active — all in one transaction
+    await prisma.$transaction([
+      // Give P1 their hand
+      prisma.matchPlayer.updateMany({
+        where: { matchId: id, seat: 0 },
+        data: { hand: p1Hand },
+      }),
+      // Add P2 with their hand
+      prisma.matchPlayer.create({
+        data: { matchId: id, userId: user.id, seat: 1, hand: p2Hand },
+      }),
+      // Seat P2
+      prisma.tableSeat.updateMany({
+        where: { matchId: id, seatIndex: 1 },
+        data: { userId: user.id },
+      }),
+      // Set match active
+      prisma.match.update({
+        where: { id },
+        data: { status: "active" },
+      }),
+    ]);
 
     return Response.json({ success: true });
   } catch (e) {
