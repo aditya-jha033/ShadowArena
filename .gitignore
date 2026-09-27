@@ -54,3 +54,7 @@ apps/web/AGENTS.md
 Thumbs.db
 ehthumbs.db
 Desktop.ini
+
+# TypeScript incremental build cache
+*.tsbuildinfo
+
