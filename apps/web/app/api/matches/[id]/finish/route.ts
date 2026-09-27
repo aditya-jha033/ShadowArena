@@ -1,41 +1,45 @@
 import { prisma } from "@/lib/prisma";
-import fs from "fs";
-import path from "path";
 
+export const dynamic = "force-dynamic";
+
+/**
+ * POST /api/matches/[id]/finish
+ *
+ * Called by the client after the ZK reveal transaction is confirmed on-chain.
+ * The client passes the result it computed locally; this route persists it to
+ * the database so match history and leaderboard queries reflect the outcome.
+ *
+ * Move pre-images are stored in Prisma (committedValue / committedNonce on
+ * MatchPlayer) — NOT on the filesystem. The legacy fs-based approach was
+ * replaced in commit d11527f (Issue #007).
+ */
 export async function POST(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // The id parameter here is actually the contractAddress because of how TableFelt calls it
+    // The dynamic segment is the move-contract address, which uniquely
+    // identifies the match after the staking contract address was set.
     const { id: contractAddress } = await params;
 
-    // Find the match by contract address
+    // Pull the committed card values directly from the DB (set when each
+    // player locked their card via /api/matches/[id]/moves).
     const match = await prisma.match.findFirst({
       where: { moveContract: contractAddress },
-      include: { players: { include: { user: true } } }
+      include: { players: { include: { user: true } } },
     });
 
     if (match) {
-      // Read moves to determine winner deterministically on the backend
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let moves: any = {};
-      try {
-        const movesFile = path.join(process.cwd(), '.moves.json');
-        if (fs.existsSync(movesFile)) {
-          moves = JSON.parse(fs.readFileSync(movesFile, 'utf8'));
-        }
-      } catch (e) {
-        console.error("Failed to read moves", e);
-      }
+      const p1 = match.players.find((p) => p.seat === 0);
+      const p2 = match.players.find((p) => p.seat === 1);
 
-      const matchMoves = moves[contractAddress];
-      if (matchMoves && matchMoves.p1 && matchMoves.p2) {
-        const p1Val = Number(matchMoves.p1.value);
-        const p2Val = Number(matchMoves.p2.value);
+      if (p1?.committedValue != null && p2?.committedValue != null) {
+        const p1Val = p1.committedValue;
+        const p2Val = p2.committedValue;
 
-        let p1Result = "loss";
-        let p2Result = "loss";
+        let p1Result: "win" | "loss" | "draw" = "loss";
+        let p2Result: "win" | "loss" | "draw" = "loss";
+
         if (p1Val > p2Val) {
           p1Result = "win";
         } else if (p2Val > p1Val) {
@@ -45,30 +49,24 @@ export async function POST(
           p2Result = "draw";
         }
 
-        // Update both players natively!
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const p1 = match.players.find((p: any) => p.seat === 0);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const p2 = match.players.find((p: any) => p.seat === 1);
-
         if (p1) {
           await prisma.matchPlayer.update({
             where: { id: p1.id },
-            data: { result: p1Result }
+            data: { result: p1Result },
           });
         }
         if (p2) {
           await prisma.matchPlayer.update({
             where: { id: p2.id },
-            data: { result: p2Result }
+            data: { result: p2Result },
           });
         }
       }
 
-      // Mark as finished
+      // Mark match as settled with a timestamp
       await prisma.match.update({
         where: { id: match.id },
-        data: { status: "finished" },
+        data: { status: "settled", settledAt: new Date() },
       });
     }
 

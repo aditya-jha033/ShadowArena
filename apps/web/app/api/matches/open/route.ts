@@ -9,7 +9,7 @@ export async function GET() {
       where: { status: "pending" },
       include: {
         players: { include: { user: true } },
-        stakes: { where: { isPrivate: false } }, // Only show public stakes
+        stakes: true, // Fetch all stakes to check privacy flag explicitly
       },
       orderBy: { createdAt: "desc" },
     });
@@ -19,18 +19,22 @@ export async function GET() {
       .map((m) => {
         const host = m.players[0]?.user;
         const stake = m.stakes[0];
+        const isPrivate = stake?.isPrivate ?? false;
+        
         const addr = host?.walletAddress ?? "Unknown";
         const shortAddr = addr.length > 12
           ? `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}`
           : addr;
 
+        const displayAmount = (stake && !isPrivate) ? Number(stake.amount) : null;
+
         return {
           id: m.id,
           game: m.gameType === "card_duel" ? "High Card Duel" : m.gameType,
           hostAddress: shortAddr,
-          stake: stake ? `${Number(stake.amount).toLocaleString()} tDUST` : "Private",
-          rawStakeAmount: stake ? Number(stake.amount) : null,
-          isPrivateStake: !stake,
+          stake: displayAmount ? `${displayAmount.toLocaleString()} tDUST` : (isPrivate ? "Private" : "No Stake"),
+          rawStakeAmount: displayAmount,
+          isPrivateStake: isPrivate,
           stakeContract: m.stakeContract,
           createdAt: m.createdAt,
         };
