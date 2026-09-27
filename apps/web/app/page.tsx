@@ -134,7 +134,7 @@ export default async function LandingPage() {
               { label: "Games Played", value: stats.matchesPlayed.toLocaleString(), color: "text-white" },
               { label: "tDUST Staked", value: stats.tDustStaked.toLocaleString(), color: "text-yellow-400" },
               { label: "ZK Proofs Verified", value: stats.zkProofsVerified.toLocaleString(), color: "text-emerald-400" },
-              { label: "Network Uptime", value: "99.9%", color: "text-teal-400" },
+              { label: "Verified Testers", value: "70+", color: "text-teal-400" },
               { label: "On Midnight Preprod", value: "LIVE", color: "text-yellow-400" },
             ]).map((s, i) => (
               <div key={i} className="flex items-center gap-3 whitespace-nowrap px-8 border-r border-white/5">
@@ -283,19 +283,19 @@ export default async function LandingPage() {
             <div className="grid md:grid-cols-3 gap-6">
               {[
                 { 
-                  quote: "Finally a Web3 game where you don't have to trust the house. ZK proofs running entirely in the background is the future.",
-                  name: "Beta Tester", 
-                  addr: "mn_addr_preprod1jn2u7ky2jumthlqw40dl2sm3wxjjn3lycgll66yc6rz59guy74fsvj8p87"
+                  quote: "reveal button showed before opponent joined and txn failed. but after the fix it works perfectly. ZK proofs running in the background is real innovation.",
+                  name: "Verified Tester", 
+                  addr: "mn_addr_preprod1rl5a9pxxsqypuumwg2nam0ysmw74tsmk3kruzcrs9y0qgreuwdwsh4jf0v"
                 },
                 { 
-                  quote: "The ability to play High Card Duel without paying gas fees because of 1AM wallet sponsorship makes this infinitely playable.",
-                  name: "Beta Tester", 
-                  addr: "mn_addr_preprod17w88tm9krmywaecx2th3agkjzu7uu4a420euh8yum3nm42p84n8q7wjann"
+                  quote: "played 8 games and still no leaderboard so couldnt see my rank. but the game concept is solid and ZK settlement is fast.",
+                  name: "Verified Tester", 
+                  addr: "mn_addr_preprod1sz2v3tn9jez8xa94c7xy74eaztcz9cwy6ynhvnyevt4pluwzt07su5ux0e"
                 },
                 { 
-                  quote: "Settlement on Preprod has been surprisingly fast. Staking tDUST and seeing it instantly hit my wallet when I win is incredible.",
-                  name: "Beta Tester", 
-                  addr: "mn_addr_preprod1r8mfahw8davsu6kpskeka9udgt3l4daqtgnxt4703fa80p65567q95hzv4"
+                  quote: "the debug endpoint was a serious issue but team fixed it same day. responsive devs and good project overall.",
+                  name: "Verified Tester", 
+                  addr: "mn_addr_preprod19kkhjjsd4yanmnvajvma560yy4zh8cavstgj27aw2668f8zpekys6xgj4z"
                 }
               ].map((t, i) => (
                 <div key={i} className="bg-white/[0.02] border border-white/[0.05] rounded-2xl p-6 relative group hover:border-yellow-500/20 transition-all duration-300">
@@ -424,3 +424,4 @@ export default async function LandingPage() {
     </div>
   );
 }
+
