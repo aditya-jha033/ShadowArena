@@ -25,6 +25,17 @@
 
 ---
 
+## 🔗 Important Links
+
+| | |
+|--|--|
+| 🌐 **Live App** | [shadow-arena-preview.vercel.app](https://shadow-arena-preview.vercel.app/) |
+| 🎬 **Demo Video** | [Watch the ShadowArena MVP Demo](https://youtu.be/DHhQHuXcIq0) |
+| 🐦 **X (Twitter)** | [@shadowarenaweb3](https://x.com/shadowarenaweb3) |
+| 📊 **Pitch Deck** | [Product Slide Deck](https://docs.google.com/presentation/d/1vbet1VGJyL97eaDAsq6htQIZPXIsuPgCpuF5YJUJkV8/edit?usp=sharing) |
+
+---
+
 ## Table of Contents
 
 1. [The Problem](#the-problem)
