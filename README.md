@@ -29,7 +29,7 @@
 
 | | |
 |--|--|
-| 🌐 **Live App** | [shadow-arena-preview.vercel.app](https://shadow-arena-preview.vercel.app/) |
+| 🌐 **Live App** | [shadow-arena-game.vercel.app](https://shadow-arena-game.vercel.app/) |
 | 🎬 **Demo Video** | [Watch the ShadowArena MVP Demo](https://youtu.be/DHhQHuXcIq0) |
 | 🐦 **X (Twitter)** | [@shadowarenaweb3](https://x.com/shadowarenaweb3) |
 | 📊 **Pitch Deck** | [Product Slide Deck](https://docs.google.com/presentation/d/1vbet1VGJyL97eaDAsq6htQIZPXIsuPgCpuF5YJUJkV8/edit?usp=sharing) |
@@ -48,11 +48,12 @@
 8. [User Workflow](#user-workflow)
 9. [File Structure](#file-structure)
 10. [CI / CD](#ci--cd)
-11. [Local Development](#local-development)
+11. [Setup & Run Locally](#setup--run-locally)
 12. [Testing](#testing)
-13. [Closed Beta & Feedback Program](#closed-beta--feedback-program)
-14. [Screenshots](#screenshots)
-15. [Roadmap](#roadmap)
+13. [Feedback & Iterations](#feedback--iterations)
+14. [Level 6 Users](#level-6-users)
+15. [Screenshots](#screenshots)
+16. [Roadmap](#roadmap)
 
 ---
 
@@ -82,8 +83,8 @@ Instead of sending your card to a server, you generate a ZK proof of your card *
 
 | Resource | Link |
 |----------|------|
-| 🌐 Web App | Deployed on Vercel (Preprod) |
-| 📜 Smart Contract | [`f6a07f0a59838dba800c2e0fe75b6ea4784b94f3ca6e7cbdf2901453148b88b4`](https://explorer.1am.xyz/contract/f6a07f0a59838dba800c2e0fe75b6ea4784b94f3ca6e7cbdf2901453148b88b4) |
+| 🌐 Web App | Deployed on Vercel (Midnight Preprod Network) |
+| 📜 Smart Contract | [`f6a07f0a59838dba800c2e0fe75b6ea4784b94f3ca6e7cbdf2901453148b88b4`](https://explorer.1am.xyz/contract/f6a07f0a59838dba800c2e0fe75b6ea4784b94f3ca6e7cbdf2901453148b88b4?network=preprod) |
 | 🔗 Player 1 Join | [`b92423bc...`](https://explorer.1am.xyz/tx/b92423bcc4041e8bad79cd9dfae78c2b2e2b4d8c3d8a277d84ae5215c561ff64?network=preprod) |
 | 🔗 Player 2 Join | [`5715e670...`](https://explorer.1am.xyz/tx/5715e670ec5715ab83704a01015c23c2e7b152b7ba95daa5c7bace61c5d989a8?network=preprod) |
 | 🔗 Player 1 Stake | [`7ecaa310...`](https://explorer.1am.xyz/tx/7ecaa3107e9dbdbcda2da8f4fc172e13b30138c9894db866c07f38389621b3a8?network=preprod) |
@@ -169,7 +170,7 @@ graph TD
 
 ## Smart Contracts
 
-ShadowArena uses two Midnight `.compact` circuits deployed on **Midnight Preprod**:
+ShadowArena uses two Midnight `.compact` circuits deployed on the **Midnight Preprod Network**:
 
 ### `stake-pool.compact`
 Manages the escrow logic. Holds `tDUST` from both players securely on-chain until the winner is mathematically determined. Prevents withdrawal until the ZK reveal is verified.
@@ -304,7 +305,7 @@ All four GitHub Actions workflows run automatically on every push to `main` and 
 
 ---
 
-## Local Development
+## Setup & Run Locally
 
 ### Prerequisites
 
@@ -348,7 +349,7 @@ NEXT_PUBLIC_MIDNIGHT_NETWORK="preprod"
 
 ## Testing
 
-The cryptographic game-settlement logic is fully unit-tested using [Vitest](https://vitest.dev/).
+The cryptographic game-settlement logic is fully unit-tested using [Vitest](https://vitest.dev/). This includes compiled-circuit adversarial tests and full Preprod end-to-end tests to ensure all edge cases are cryptographically verified.
 
 ```bash
 cd apps/web
@@ -367,7 +368,7 @@ Tests cover:
 
 ---
 
-## Closed Beta & Feedback Program
+## Feedback & Iterations
 
 ShadowArena ran a structured closed beta with **70 verified Midnight Preprod wallet holders** during September 2026.
 
@@ -375,8 +376,12 @@ ShadowArena ran a structured closed beta with **70 verified Midnight Preprod wal
 |----------|------|
 | 📋 Feedback Form | [Google Form](https://forms.gle/HJHyskV8uUWcaMfE9) |
 | 📊 Response Sheet | [Google Sheets](https://docs.google.com/spreadsheets/d/1dgOz8PlK47X1YORECx1SuLA6aYzvvBl73ZnqgpCoT_M/edit?usp=sharing) |
-| 🐛 Issue Tracker | [`docs/FEEDBACK_LOOP.md`](docs/FEEDBACK_LOOP.md) |
-| 👥 Tester Registry | [`docs/USERS.md`](docs/USERS.md) |
+| 🐛 Issue Tracker | [`FEEDBACK.md`](FEEDBACK.md) |
+| 👥 Tester Registry | [`LAUNCH_USERS.md`](LAUNCH_USERS.md) |
+
+## Level 6 Users
+
+Our launch testers and their valid wallet formats can be found in our [LAUNCH_USERS.md](./LAUNCH_USERS.md) registry.
 
 ### Beta Outcomes
 
