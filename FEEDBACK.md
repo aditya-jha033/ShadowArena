@@ -4,7 +4,7 @@
 **Testers:** 70 verified 1AM Wallet holders on Midnight Preprod  
 **Feedback Form:** [Google Form](https://forms.gle/HJHyskV8uUWcaMfE9)  
 **Response Sheet:** [Google Sheets](https://docs.google.com/spreadsheets/d/1dgOz8PlK47X1YORECx1SuLA6aYzvvBl73ZnqgpCoT_M/edit?usp=sharing)  
-**Tester Registry:** [`docs/USERS.md`](./USERS.md)
+**Tester Registry:** [`LAUNCH_USERS.md`](./LAUNCH_USERS.md)
 
 ---
 
@@ -242,4 +242,4 @@ The following issues were identified during an internal security audit conducted
 
 ---
 
-*Last updated: 2026-09-28 · All feedback collected via [Google Form](https://forms.gle/HJHyskV8uUWcaMfE9) and corroborated against verified 1AM Wallet addresses in [`docs/USERS.md`](./USERS.md).*
+*Last updated: 2026-09-28 · All feedback collected via [Google Form](https://forms.gle/HJHyskV8uUWcaMfE9) and corroborated against verified 1AM Wallet addresses in [`LAUNCH_USERS.md`](./LAUNCH_USERS.md).*
