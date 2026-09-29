@@ -74,7 +74,7 @@ export function CadetOnboarding() {
               <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
                 <h3 className="text-2xl font-bold">2. Switch to Preprod</h3>
                 <p className="text-white/60 leading-relaxed">
-                  Open your 1AM wallet settings and ensure your network is set to <strong className="text-white">Midnight Preprod</strong>. The Preview network is deprecated!
+                  Open your 1AM wallet settings and ensure your network is set to <strong className="text-white">Midnight Preprod</strong>.
                 </p>
               </div>
             )}

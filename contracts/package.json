@@ -4,7 +4,7 @@
   "scripts": {
     "compact:compile": "compactc compile circuits/ dist/",
     "test": "vitest run",
-    "deploy:preview": "node scripts/deploy.js --network preview"
+    "deploy:preprod": "node scripts/deploy.js --network preprod"
   },
   "dependencies": {
     "@midnight-ntwrk/compact-js": "2.5.1",
