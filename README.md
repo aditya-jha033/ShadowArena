@@ -419,7 +419,7 @@ All 13 issues surfaced during the beta were triaged, fixed, and committed during
 
 ## Roadmap
 
-### Phase 1 — Closed Beta ✅ Complete (September 2026)
+### Closed Beta ✅ Complete (September 2026)
 - [x] High Card Duel with ZK commitment & reveal
 - [x] 1AM Wallet integration (Preprod)
 - [x] Private & public stake modes
@@ -428,13 +428,6 @@ All 13 issues surfaced during the beta were triaged, fixed, and committed during
 - [x] Mobile-responsive game view
 - [x] Full CI / CD pipeline (build · lint · test)
 - [x] 70-tester closed beta with structured feedback loop
-
-### Phase 2 — Planned
-- [ ] Tournament bracket system with escrow prize pools
-- [ ] NFT card skin & table felt marketplace (on-chain asset registry contract)
-- [ ] Real-time matchmaking via WebSocket
-- [ ] Texas Hold'em with MPC-based card shuffle
-- [ ] Cross-wallet private game invitations
 
 ---
 
